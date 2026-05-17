@@ -80,6 +80,14 @@ function SkeletonCard() {
 function PostCard({ post, index }: { post: Post; index: number }) {
   const ref    = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: '-60px' });
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+
+  function handleMouseMove(e: React.MouseEvent<HTMLElement>) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width  - 0.5;
+    const y = (e.clientY - rect.top)  / rect.height - 0.5;
+    setTilt({ x: y * -5, y: x * 5 });
+  }
 
   const likesLabel    = post.likes    != null ? `${post.likes.toLocaleString()} likes`       : null;
   const commentsLabel = post.comments != null ? `${post.comments.toLocaleString()} comments` : null;
@@ -91,8 +99,21 @@ function PostCard({ post, index }: { post: Post; index: number }) {
       initial={{ opacity: 0, y: 40 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.8, delay: index * 0.12, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className="group rounded-xl border border-white/8 bg-[#0c0c0c] p-5 sm:p-6 w-full hover:border-[#FF9FF2]/30 transition-all duration-500 hover:-translate-y-0.5"
+      style={{
+        rotateX: tilt.x,
+        rotateY: tilt.y,
+        transformPerspective: 900,
+        transformStyle: 'preserve-3d',
+      }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={() => setTilt({ x: 0, y: 0 })}
+      whileHover={{ scale: 1.01 }}
+      whileTap={{ scale: 0.99 }}
+      className="shimmer-card group relative rounded-xl border border-white/8 bg-[#0c0c0c] p-5 sm:p-6 w-full hover:border-[#FF9FF2]/30 transition-all duration-500 overflow-hidden"
     >
+      {/* Top accent line on hover */}
+      <div className="absolute top-0 left-0 right-0 h-[2px] bg-[#FF9FF2]/0 group-hover:bg-[#FF9FF2]/60 transition-all duration-500" />
+
       {/* Card header */}
       <div className="flex items-center justify-between gap-3 mb-5">
         <div className="flex items-center gap-3 min-w-0">
@@ -154,13 +175,20 @@ function PostCard({ post, index }: { post: Post; index: number }) {
 // ── Section ──────────────────────────────────────────────────────────────────
 
 export default function SocialFeed() {
+  const sectionRef    = useRef<HTMLElement>(null);
   const headingRef    = useRef<HTMLDivElement>(null);
   const headingInView = useInView(headingRef, { once: true, margin: '-60px' });
 
-  const [posts,   setPosts]   = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error,   setError]   = useState<string | null>(null);
-  const [isLive,  setIsLive]  = useState(false);
+  const [posts,    setPosts]    = useState<Post[]>([]);
+  const [loading,  setLoading]  = useState(true);
+  const [error,    setError]    = useState<string | null>(null);
+  const [isLive,   setIsLive]   = useState(false);
+  const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
+
+  function handleSectionMouseMove(e: React.MouseEvent<HTMLElement>) {
+    const rect = sectionRef.current?.getBoundingClientRect();
+    if (rect) setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  }
 
   async function loadPosts() {
     setLoading(true);
@@ -187,9 +215,19 @@ export default function SocialFeed() {
   useEffect(() => { loadPosts(); }, []);
 
   return (
-    <section className="relative min-h-screen flex flex-col overflow-hidden bg-black">
+    <section
+      ref={sectionRef}
+      className="relative min-h-screen flex flex-col overflow-hidden bg-black"
+      onMouseMove={handleSectionMouseMove}
+    >
       {/* ASCII texture */}
       <div className="absolute inset-0 pointer-events-none z-0" style={ASCII_BG} />
+
+      {/* Cursor spotlight */}
+      <div
+        className="cursor-spotlight"
+        style={{ left: mousePos.x, top: mousePos.y }}
+      />
 
       {/* Top fade */}
       <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black to-transparent pointer-events-none z-10" />

@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 
 interface Card {
@@ -33,6 +33,15 @@ const ASCII_BG: React.CSSProperties = {
 function CapabilityCard({ card, index }: { card: Card; index: number }) {
   const ref    = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: '-80px' });
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const [glowing, setGlowing] = useState(false);
+
+  function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width  - 0.5;
+    const y = (e.clientY - rect.top)  / rect.height - 0.5;
+    setTilt({ x: y * -9, y: x * 9 });
+  }
 
   return (
     <motion.div
@@ -40,7 +49,18 @@ function CapabilityCard({ card, index }: { card: Card; index: number }) {
       initial={{ opacity: 0, y: 40 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.8, delay: index * 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className="group relative rounded-xl overflow-hidden border border-white/8 bg-[#0c0c0c] hover:border-[#FF9FF2]/35 transition-all duration-500 hover:-translate-y-1"
+      style={{
+        rotateX: tilt.x,
+        rotateY: tilt.y,
+        transformPerspective: 800,
+        transformStyle: 'preserve-3d',
+      }}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setGlowing(true)}
+      onMouseLeave={() => { setTilt({ x: 0, y: 0 }); setGlowing(false); }}
+      className="shimmer-card group relative rounded-xl overflow-hidden border border-white/8 bg-[#0c0c0c] hover:border-[#FF9FF2]/35 transition-colors duration-300"
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
     >
       {/* Top accent line — fuchsia on hover */}
       <div className="absolute top-0 left-0 right-0 h-[2px] bg-[#FF9FF2]/0 group-hover:bg-[#FF9FF2]/70 transition-all duration-500" />
@@ -102,13 +122,30 @@ function CapabilityCard({ card, index }: { card: Card; index: number }) {
 }
 
 export default function CommunityCapabilities() {
+  const sectionRef    = useRef<HTMLElement>(null);
   const headingRef    = useRef<HTMLDivElement>(null);
   const headingInView = useInView(headingRef, { once: true, margin: '-60px' });
+  const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
+
+  function handleSectionMouseMove(e: React.MouseEvent<HTMLElement>) {
+    const rect = sectionRef.current?.getBoundingClientRect();
+    if (rect) setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  }
 
   return (
-    <section className="relative min-h-screen flex flex-col overflow-hidden bg-black">
+    <section
+      ref={sectionRef}
+      className="relative min-h-screen flex flex-col overflow-hidden bg-black"
+      onMouseMove={handleSectionMouseMove}
+    >
       {/* ASCII texture */}
       <div className="absolute inset-0 pointer-events-none z-0" style={ASCII_BG} />
+
+      {/* Cursor spotlight */}
+      <div
+        className="cursor-spotlight"
+        style={{ left: mousePos.x, top: mousePos.y }}
+      />
 
       {/* Top fade */}
       <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black to-transparent pointer-events-none z-10" />

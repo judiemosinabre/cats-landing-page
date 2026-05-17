@@ -161,13 +161,13 @@ export default function Navbar() {
             </div>
             <div className="hidden sm:flex flex-col justify-center leading-none gap-1">
               <span
-                className="text-[9px] text-white leading-none"
+                className="glitch text-[9px] text-white leading-none"
                 style={{ fontFamily: "'Press Start 2P', monospace" }}
               >
                 CATS OF
               </span>
               <span
-                className="text-[9px] text-[#FF9FF2] leading-none"
+                className="glitch-2 text-[9px] text-[#FF9FF2] leading-none"
                 style={{ fontFamily: "'Press Start 2P', monospace" }}
               >
                 PARAISO
