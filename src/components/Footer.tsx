@@ -1,4 +1,14 @@
+import { motion } from 'framer-motion';
 import { Facebook, Twitter, Instagram, Music2, MessageCircle } from 'lucide-react';
+
+const FLOAT_PAWS = [
+  { id: 0, left: '6%',  delay: 0,   duration: 5.0 },
+  { id: 1, left: '20%', delay: 1.8, duration: 6.5 },
+  { id: 2, left: '38%', delay: 0.6, duration: 4.5 },
+  { id: 3, left: '57%', delay: 2.5, duration: 7.0 },
+  { id: 4, left: '74%', delay: 1.1, duration: 5.5 },
+  { id: 5, left: '90%', delay: 3.2, duration: 6.0 },
+];
 
 const SOCIAL_LINKS = [
   { name: 'Facebook',  url: 'https://www.facebook.com/profile.php?id=61567442002845', icon: Facebook    },
@@ -18,6 +28,25 @@ export default function Footer() {
     <footer className="relative overflow-hidden bg-black border-t border-[#FF9FF2]/15">
       {/* ASCII texture */}
       <div className="absolute inset-0 pointer-events-none z-0" style={ASCII_BG} />
+
+      {/* Floating paw particles */}
+      {FLOAT_PAWS.map((paw) => (
+        <motion.div
+          key={paw.id}
+          className="absolute bottom-16 pointer-events-none select-none"
+          style={{ left: paw.left, zIndex: 1 }}
+          animate={{ y: [0, -200], opacity: [0, 0.5, 0.3, 0], rotate: [0, 15] }}
+          transition={{
+            duration: paw.duration,
+            delay: paw.delay,
+            repeat: Infinity,
+            repeatDelay: paw.duration * 0.6,
+            ease: 'easeOut',
+          }}
+        >
+          <img src="/assets/Paw.png" alt="" className="w-7 h-7 object-contain" />
+        </motion.div>
+      ))}
 
       {/* Fuchsia top glow */}
       <div
