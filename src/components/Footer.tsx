@@ -1,65 +1,79 @@
-import { Facebook, Twitter, Instagram, Music2, MessageCircle, ArrowRight } from 'lucide-react';
+import { Facebook, Twitter, Instagram, Music2, MessageCircle } from 'lucide-react';
 
 const SOCIAL_LINKS = [
-  {
-    name: 'Facebook',
-    url: 'https://www.facebook.com/profile.php?id=61567442002845',
-    icon: Facebook,
-  },
-  {
-    name: 'X',
-    url: 'https://x.com/CatsofParaiso',
-    icon: Twitter,
-  },
-  {
-    name: 'TikTok',
-    url: 'https://www.tiktok.com/@catsofparaiso',
-    icon: Music2,
-  },
-  {
-    name: 'Instagram',
-    url: 'https://www.instagram.com/catsofparaiso',
-    icon: Instagram,
-  },
-  {
-    name: 'Threads',
-    url: 'https://www.threads.com/@catsofparaiso',
-    icon: MessageCircle,
-  },
+  { name: 'Facebook',  url: 'https://www.facebook.com/profile.php?id=61567442002845', icon: Facebook    },
+  { name: 'X',         url: 'https://x.com/CatsofParaiso',                            icon: Twitter     },
+  { name: 'TikTok',    url: 'https://www.tiktok.com/@catsofparaiso',                  icon: Music2      },
+  { name: 'Instagram', url: 'https://www.instagram.com/catsofparaiso',                icon: Instagram   },
+  { name: 'Threads',   url: 'https://www.threads.com/@catsofparaiso',                 icon: MessageCircle },
 ];
+
+const ASCII_BG: React.CSSProperties = {
+  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14'%3E%3Ctext x='1' y='10' font-family='monospace' font-size='7' fill='%23ffffff' opacity='0.04'%3E5%3C/text%3E%3C/svg%3E")`,
+  backgroundRepeat: 'repeat',
+};
 
 export default function Footer() {
   return (
-    <footer className="relative overflow-hidden bg-black border-t border-white/10">
-      <div className="relative mx-auto max-w-7xl px-6 md:px-12 lg:px-20 py-14 md:py-16">
+    <footer className="relative overflow-hidden bg-black border-t border-[#FF9FF2]/15">
+      {/* ASCII texture */}
+      <div className="absolute inset-0 pointer-events-none z-0" style={ASCII_BG} />
 
-        {/* Top row — brand + tagline */}
-        <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between mb-12">
+      {/* Fuchsia top glow */}
+      <div
+        className="absolute top-0 left-0 right-0 h-40 pointer-events-none z-0"
+        style={{
+          background: 'radial-gradient(ellipse 800px 200px at 50% 0%, rgba(255,159,242,0.08) 0%, transparent 100%)',
+        }}
+      />
 
-          {/* Brand block */}
-          <div className="flex items-center gap-4">
-            <div className="h-14 w-14 rounded-3xl overflow-hidden border border-white/12 bg-white/8 backdrop-blur-xl flex-shrink-0">
-              <img
-                src="/assets/cats_logo.jpg"
-                alt="Cats of Paraiso"
-                className="h-full w-full object-cover"
-              />
-            </div>
-            <div>
-              {/* Brand name — Instrument Serif like Hero h1 */}
-              <p
-                className="text-xl sm:text-2xl font-normal text-white leading-tight"
-                style={{ fontFamily: "'Instrument Serif', serif" }}
-              >
-                Cats of Paraiso
-              </p>
-            </div>
+      <div className="relative z-10 mx-auto max-w-7xl px-6 md:px-12 lg:px-20 py-16 md:py-20">
+
+        {/* Brand block — centered */}
+        <div className="flex flex-col items-center gap-5 mb-12">
+          {/* Logo with fuchsia border */}
+          <div
+            className="h-16 w-16 overflow-hidden border border-[#FF9FF2]/35"
+            style={{ borderRadius: '12%', boxShadow: '0 0 30px rgba(255,159,242,0.18)' }}
+          >
+            <img src="/assets/cats_logo.png" alt="Cats of Paraiso" className="h-full w-full object-cover" />
           </div>
 
-          
+          {/* Pixel brand name */}
+          <div className="flex flex-col items-center gap-1.5">
+            <span
+              className="text-[11px] sm:text-[13px] text-white leading-none tracking-wide"
+              style={{ fontFamily: "'Press Start 2P', monospace" }}
+            >
+              CATS OF
+            </span>
+            <span
+              className="text-[11px] sm:text-[13px] text-[#FF9FF2] leading-none tracking-wide"
+              style={{ fontFamily: "'Press Start 2P', monospace" }}
+            >
+              PARAISO
+            </span>
+          </div>
+
+          {/* Tagline */}
+          <p
+            className="text-white/40 text-sm font-light leading-relaxed tracking-wide text-center max-w-xs"
+            style={{ fontFamily: "'Assistant', sans-serif" }}
+          >
+            Built from SEA, reaching the world.
+            <br />Crypto culture · Cat rescue · Community.
+          </p>
         </div>
 
-        {/* Social links — icon-only circles, always centered */}
+        {/* Fuchsia paw divider */}
+        <div className="flex items-center gap-4 mb-10">
+          <div className="h-px flex-1 bg-[#FF9FF2]/15" />
+          
+          <img src="/assets/paws_horizontal.png" alt="Cats of Paraiso"/>
+          <div className="h-px flex-1 bg-[#FF9FF2]/15" />
+        </div>
+
+        {/* Social links — icon-only fuchsia circles */}
         <div className="flex justify-center flex-wrap gap-3 mb-12">
           {SOCIAL_LINKS.map((item) => {
             const Icon = item.icon;
@@ -70,27 +84,30 @@ export default function Footer() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label={item.name}
-                className="group flex items-center justify-center w-11 h-11 rounded-full bg-white/10 hover:bg-white/18 backdrop-blur-xl border border-white/20 hover:border-white/35 text-white transition-all duration-300 hover:scale-105 active:scale-95"
+                className="group flex items-center justify-center w-11 h-11 rounded-full border border-[#FF9FF2]/20 bg-[#FF9FF2]/5 text-white/40 hover:border-[#FF9FF2] hover:bg-[#FF9FF2]/15 hover:text-[#FF9FF2] transition-all duration-300 hover:scale-105 active:scale-95"
+                style={{ boxShadow: 'none' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 20px rgba(255,159,242,0.2)'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = 'none'; }}
               >
-                <Icon className="h-4 w-4 text-white/60 group-hover:text-white transition-colors duration-200" />
+                <Icon className="h-4 w-4 transition-colors duration-200" />
               </a>
             );
           })}
         </div>
 
-        {/* Bottom bar — always centered */}
-        <div className="border-t border-white/10 pt-6 flex flex-col items-center gap-2 text-center">
+        {/* Bottom bar */}
+        <div className="border-t border-[#FF9FF2]/10 pt-6 flex flex-col items-center gap-2 text-center">
           <span
-            className="text-sm text-white/30 font-light tracking-wide"
-            style={{ fontFamily: "'Inter', sans-serif" }}
+            className="text-sm text-white/25 font-light tracking-wide"
+            style={{ fontFamily: "'Assistant', sans-serif" }}
           >
             © {new Date().getFullYear()} Cats of Paraiso. All rights reserved.
           </span>
           <span
-            className="text-xs text-white/20 font-light tracking-widest uppercase"
-            style={{ fontFamily: "'Inter', sans-serif" }}
+            className="text-[9px] text-[#FF9FF2]/50 tracking-[0.3em] uppercase"
+            style={{ fontFamily: "'Press Start 2P', monospace" }}
           >
-            In Code We Trust · 🐾
+            In Code We Trust 
           </span>
         </div>
       </div>
