@@ -12,13 +12,13 @@ const CARDS: Card[] = [
   {
     tags: ['Cat Rescue', 'Community Care', 'Local Impact', 'Awareness'],
     title: 'Cat Rescue',
-    body: 'Community-powered initiatives focused on helping stray cats through rescue support, feeding programs, and awareness campaigns across Southeast Asia.',
+    body: 'Community-powered initiatives focused on helping stray cats through rescue support, feeding programs, and awareness campaigns — starting from SEA and growing globally.',
     accent: 'from-pink-400/20 to-transparent',
   },
   {
     tags: ['Trading Basics', 'Web3 Learning', 'Market Insights', 'Beginner Friendly'],
     title: 'Crypto Education',
-    body: 'Accessible crypto and trading education designed to help Southeast Asians understand Web3, digital assets, and modern online opportunities.',
+    body: 'Accessible crypto and trading education built for everyone — rooted in SEA, designed for a global audience ready to explore Web3 and digital assets.',
     accent: 'from-rose-400/20 to-transparent',
   },
   {
