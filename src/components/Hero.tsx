@@ -69,7 +69,7 @@ export default function Hero() {
           className="text-white/60 text-base md:text-lg font-light leading-relaxed max-w-xl mb-10 tracking-wide"
           style={{ fontFamily: "'Inter', sans-serif" }}
         >
-          Cats of Paraiso combines crypto culture, trading education, and community-driven initiatives to support stray cats while making Web3 more accessible to Filipinos.
+          Cats of Paraiso combines crypto culture, trading education, and community-driven initiatives to support stray cats while making Web3 more accessible across Southeast Asia.
         </motion.p>
 
         {/* CTAs */}
