@@ -1,6 +1,8 @@
 import { useRef, useState, useEffect } from 'react';
-import { motion, useInView, useMotionValue, animate as fmAnimate } from 'framer-motion';
+import { motion, AnimatePresence, useInView, useMotionValue, animate as fmAnimate } from 'framer-motion';
 import { Globe, Clock, ArrowRight } from 'lucide-react';
+// Facebook page URL — update this to your official page
+const FB_URL = 'https://web.facebook.com/profile.php?id=61567442002845';
 
 const PARTNERS = ['MEXC'];
 
@@ -12,7 +14,7 @@ const ASCII_BG: React.CSSProperties = {
 
 // Floating paw positions & timings
 const FLOAT_PAWS = [
-  { id: 0, left: '6%',  delay: 0,   duration: 5.0 },
+  { id: 0, left: '6%', delay: 0, duration: 5.0 },
   { id: 1, left: '20%', delay: 1.8, duration: 6.5 },
   { id: 2, left: '38%', delay: 0.6, duration: 4.5 },
   { id: 3, left: '57%', delay: 2.5, duration: 7.0 },
@@ -28,27 +30,28 @@ const fadeUp = (delay = 0) => ({
 
 // ── Animated counter stat card ────────────────────────────────────────────────
 function StatCard({
-  rawNumber, suffix, label, icon,
+  rawNumber, suffix, label, icon, displayOverride,
 }: {
-  rawNumber: number;
-  suffix: string;
+  rawNumber?: number;
+  suffix?: string;
   label: string;
   icon: React.ReactNode;
+  displayOverride?: string;
 }) {
-  const ref    = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true });
-  const count  = useMotionValue(0);
+  const count = useMotionValue(0);
   const [display, setDisplay] = useState('0');
 
   useEffect(() => {
-    if (!inView) return;
+    if (displayOverride || !inView || rawNumber === undefined) return;
     const controls = fmAnimate(count, rawNumber, {
       duration: 2.2,
       ease: 'easeOut',
       onUpdate: (v) => setDisplay(Math.round(v).toLocaleString()),
     });
     return controls.stop;
-  }, [inView, rawNumber, count]);
+  }, [inView, rawNumber, count, displayOverride]);
 
   return (
     <div
@@ -60,7 +63,7 @@ function StatCard({
         className="text-white text-2xl font-bold tracking-tight tabular-nums"
         style={{ fontFamily: "'Assistant', sans-serif" }}
       >
-        {display}{suffix}
+        {displayOverride ?? (display + (suffix ?? ''))}
       </div>
       <div
         className="text-white/45 text-xs font-light tracking-wide"
@@ -73,9 +76,10 @@ function StatCard({
 }
 
 // ── Hero ──────────────────────────────────────────────────────────────────────
-export default function Hero() {
-  const heroRef   = useRef<HTMLElement>(null);
+export default function Hero({ onOpenWhitelist }: { onOpenWhitelist: () => void }) {
+  const heroRef = useRef<HTMLElement>(null);
   const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
+  const [fbRedirectOpen, setFbRedirectOpen] = useState(false);
 
   function handleMouseMove(e: React.MouseEvent<HTMLElement>) {
     const rect = heroRef.current?.getBoundingClientRect();
@@ -181,6 +185,7 @@ export default function Hero() {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={onOpenWhitelist}
             className="group flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-white text-black text-sm font-bold tracking-wide transition-all duration-300 shadow-lg shadow-black/30 hover:shadow-[#FF9FF2]/10"
             style={{ fontFamily: "'Assistant', sans-serif" }}
           >
@@ -191,6 +196,7 @@ export default function Hero() {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={() => setFbRedirectOpen(true)}
             className="group flex items-center gap-2.5 px-7 py-3.5 rounded-full border border-[#FF9FF2]/40 text-[#FF9FF2] text-sm font-semibold tracking-wide hover:bg-[#FF9FF2]/10 hover:border-[#FF9FF2] transition-all duration-300"
             style={{ fontFamily: "'Assistant', sans-serif" }}
           >
@@ -201,8 +207,8 @@ export default function Hero() {
 
         {/* Stats — animated counters */}
         <motion.div {...fadeUp(1.05)} className="flex gap-4 mb-16 flex-wrap">
-          <StatCard rawNumber={10}  suffix="K+"  label="Community Supporters"   icon={<Globe size={18} />} />
-          <StatCard rawNumber={247} suffix=""     label="Crypto & Web3 Updates"  icon={<Clock size={18} />} />
+          <StatCard rawNumber={10} suffix="K+" label="Community Supporters" icon={<Globe size={18} />} />
+          <StatCard displayOverride="24/7" label="Crypto & Web3 Updates" icon={<Clock size={18} />} />
         </motion.div>
 
         {/* Partners */}
@@ -235,6 +241,73 @@ export default function Hero() {
 
       {/* Bottom fade */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black to-transparent pointer-events-none z-10" />
+
+      {/* Facebook redirect confirmation */}
+      <AnimatePresence>
+        {fbRedirectOpen && (
+          <>
+            <motion.div
+              key="fb-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm"
+              onClick={() => setFbRedirectOpen(false)}
+            />
+            <motion.div
+              key="fb-modal"
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
+            >
+              <div
+                className="relative w-full max-w-sm rounded-2xl bg-[#0c0c0c] border border-[#FF9FF2]/25 p-8 pointer-events-auto shadow-2xl shadow-black/60 flex flex-col items-center text-center gap-5"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="w-12 h-12 rounded-full bg-[#1877F2]/15 border border-[#1877F2]/30 flex items-center justify-center">
+                  <svg viewBox="0 0 24 24" fill="#1877F2" className="w-6 h-6">
+                    <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.313 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.884v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z" />
+                  </svg>
+                </div>
+                <div>
+                  <h2
+                    className="text-white font-bold mb-2"
+                    style={{ fontFamily: "'Press Start 2P', monospace", fontSize: '11px', lineHeight: '1.8' }}
+                  >
+                    Leaving Site
+                  </h2>
+                  <p
+                    className="text-white/55 text-sm leading-relaxed"
+                    style={{ fontFamily: "'Assistant', sans-serif" }}
+                  >
+                    You will be redirected to our official{' '}
+                    <span className="text-[#1877F2] font-semibold">Facebook page</span>.
+                  </p>
+                </div>
+                <div className="flex gap-3 w-full">
+                  <button
+                    onClick={() => setFbRedirectOpen(false)}
+                    className="flex-1 py-2.5 rounded-full border border-white/15 text-white/50 text-sm font-semibold hover:border-white/30 hover:text-white/80 transition-all duration-200"
+                    style={{ fontFamily: "'Assistant', sans-serif" }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => { setFbRedirectOpen(false); window.open(FB_URL, '_blank', 'noopener,noreferrer'); }}
+                    className="flex-1 py-2.5 rounded-full bg-[#1877F2] text-white text-sm font-bold hover:bg-[#1877F2]/90 transition-all duration-200"
+                    style={{ fontFamily: "'Assistant', sans-serif" }}
+                  >
+                    Continue
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

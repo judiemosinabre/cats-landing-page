@@ -113,7 +113,7 @@ function LaunchModal({ onClose }: { onClose: () => void }) {
 }
 
 // ── Navbar ──────────────────────────────────────────────────────────────────
-export default function Navbar() {
+export default function Navbar({ onOpenWhitelist }: { onOpenWhitelist: () => void }) {
   const [scrolled, setScrolled]   = useState(false);
   const [menuOpen, setMenuOpen]   = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -196,7 +196,7 @@ export default function Navbar() {
           {/* Desktop CTA — fuchsia outline */}
           <div className="hidden md:flex items-center">
             <button
-              onClick={() => handleLink(null)}
+              onClick={() => { setMenuOpen(false); onOpenWhitelist(); }}
               className="px-5 py-2.5 rounded-full border border-[#FF9FF2]/40 text-[#FF9FF2] text-sm font-semibold tracking-wide hover:bg-[#FF9FF2]/10 hover:border-[#FF9FF2] transition-all duration-300 hover:scale-105 active:scale-95"
               style={{ fontFamily: "'Assistant', sans-serif" }}
             >
@@ -241,7 +241,7 @@ export default function Navbar() {
                 ))}
                 <div className="px-4 pt-2 pb-3 border-t border-[#FF9FF2]/10 mt-1">
                   <button
-                    onClick={() => handleLink(null)}
+                    onClick={() => { setMenuOpen(false); onOpenWhitelist(); }}
                     className="w-full px-5 py-2.5 rounded-full border border-[#FF9FF2]/40 text-[#FF9FF2] text-sm font-semibold tracking-wide"
                     style={{ fontFamily: "'Assistant', sans-serif" }}
                   >

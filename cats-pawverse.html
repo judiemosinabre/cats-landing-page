@@ -1,0 +1,1957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pawverse — Cats of Paraiso</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Assistant:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+/* ═══════════════════════════════════════════
+   RESET + VARS
+═══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --fuchsia:    #FF9FF2;
+  --fuchsia-08: rgba(255,159,242,0.08);
+  --fuchsia-15: rgba(255,159,242,0.15);
+  --fuchsia-25: rgba(255,159,242,0.25);
+  --fuchsia-35: rgba(255,159,242,0.35);
+  --gold:       #FFD700;
+  --orange:     #FF6B35;
+  --green:      #50C878;
+  --blue:       #4A90D9;
+  --purple:     #9B59B6;
+  --bg:         #060606;
+  --card:       #0d0d0d;
+  --card2:      #131313;
+  --border:     rgba(255,255,255,0.07);
+  --border2:    rgba(255,255,255,0.12);
+  --text:       #ffffff;
+  --t60:        rgba(255,255,255,0.60);
+  --t40:        rgba(255,255,255,0.40);
+  --t25:        rgba(255,255,255,0.25);
+  --t12:        rgba(255,255,255,0.12);
+  --pixel:      'Press Start 2P', monospace;
+  --sans:       'Assistant', sans-serif;
+  --radius:     16px;
+}
+
+html { font-size: 16px; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow: hidden;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14'%3E%3Ctext x='1' y='10' font-family='monospace' font-size='7' fill='%23ffffff' opacity='0.025'%3E5%3C/text%3E%3C/svg%3E");
+}
+
+button { cursor: pointer; font-family: var(--sans); }
+a { text-decoration: none; }
+img { display: block; }
+
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--fuchsia-25); border-radius: 2px; }
+
+/* ═══════════════════════════════════════════
+   FLOATING PAWS (global bg layer)
+═══════════════════════════════════════════ */
+#paw-layer {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0;
+  overflow: hidden;
+}
+.fpaw {
+  position: absolute; bottom: -40px;
+  opacity: 0;
+  animation: paw-rise linear infinite;
+}
+.fpaw img { width: 18px; height: 18px; object-fit: contain; opacity: 0.12; }
+@keyframes paw-rise {
+  0%   { opacity:0; transform: translateY(0) rotate(0deg);   }
+  10%  { opacity:1; }
+  90%  { opacity:0.6; }
+  100% { opacity:0; transform: translateY(-105vh) rotate(25deg); }
+}
+
+/* ═══════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════ */
+#toast {
+  position: fixed; bottom: 88px; left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  background: rgba(12,12,12,0.96);
+  border: 1px solid var(--fuchsia-25);
+  border-radius: 12px;
+  padding: 11px 20px;
+  font-family: var(--pixel); font-size: 7px;
+  color: var(--fuchsia); letter-spacing: 0.1em;
+  z-index: 999; opacity: 0;
+  transition: opacity 0.25s, transform 0.25s;
+  pointer-events: none; text-align: center;
+  max-width: 88vw; backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ═══════════════════════════════════════════
+   LEVELUP MODAL
+═══════════════════════════════════════════ */
+#lu-modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.82);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 900; opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+  backdrop-filter: blur(6px);
+}
+#lu-modal.show { opacity: 1; pointer-events: all; }
+.lu-card {
+  background: var(--card); border: 1px solid var(--fuchsia-25);
+  border-radius: 24px; padding: 40px 32px;
+  text-align: center; max-width: 300px; width: 90%;
+  box-shadow: 0 0 80px rgba(255,159,242,0.18);
+  animation: lu-pop 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes lu-pop {
+  from { transform: scale(0.7); opacity:0; }
+  to   { transform: scale(1);   opacity:1; }
+}
+.lu-icon { font-size: 64px; margin-bottom: 16px; }
+.lu-title {
+  font-family: var(--pixel); font-size: 14px;
+  color: var(--fuchsia); line-height: 1.8; margin-bottom: 6px;
+}
+.lu-sub {
+  font-family: var(--pixel); font-size: 7px;
+  color: var(--t40); margin-bottom: 24px; letter-spacing: 0.08em;
+}
+.lu-btn {
+  background: var(--fuchsia); color: #000; border: none;
+  border-radius: 10px; padding: 12px 32px;
+  font-family: var(--pixel); font-size: 7px;
+  letter-spacing: 0.1em; cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
+.lu-btn:hover { opacity: 0.9; transform: scale(1.03); }
+
+/* ═══════════════════════════════════════════
+   LOGIN SCREEN
+═══════════════════════════════════════════ */
+#login {
+  position: fixed; inset: 0; z-index: 800;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+  background: radial-gradient(ellipse 700px 500px at 50% 110%, rgba(255,159,242,0.07) 0%, transparent 70%), var(--bg);
+}
+.login-card {
+  width: 100%; max-width: 400px;
+  background: var(--card); border: 1px solid var(--border2);
+  border-radius: 22px; padding: 40px 32px;
+  display: flex; flex-direction: column; gap: 24px;
+  box-shadow: 0 0 60px rgba(0,0,0,0.6);
+}
+.login-brand {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 14px;
+}
+.login-logo {
+  width: 68px; height: 68px; border-radius: 18px;
+  border: 1px solid var(--fuchsia-35); overflow: hidden;
+  box-shadow: 0 0 40px rgba(255,159,242,0.18);
+}
+.login-logo img { width: 100%; height: 100%; object-fit: cover; }
+.login-logo-fallback {
+  width: 100%; height: 100%; display: flex;
+  align-items: center; justify-content: center;
+  font-size: 36px; background: rgba(255,159,242,0.06);
+}
+.login-title {
+  font-family: var(--pixel); font-size: 9px;
+  color: var(--fuchsia); text-align: center;
+  line-height: 2; letter-spacing: 0.2em;
+}
+.login-tagline {
+  font-size: 12px; color: var(--t40); text-align: center;
+  font-weight: 300; letter-spacing: 0.05em;
+}
+.login-form { display: flex; flex-direction: column; gap: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 7px; }
+.form-label {
+  font-family: var(--pixel); font-size: 6.5px;
+  color: var(--t40); letter-spacing: 0.15em;
+}
+.form-input {
+  background: rgba(255,255,255,0.035);
+  border: 1px solid var(--border);
+  border-radius: 10px; padding: 13px 16px;
+  color: var(--text); font-family: var(--sans);
+  font-size: 14px; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-input:focus {
+  border-color: var(--fuchsia-35);
+  box-shadow: 0 0 0 3px rgba(255,159,242,0.07);
+}
+.login-btn {
+  margin-top: 4px;
+  background: var(--fuchsia); color: #000;
+  border: none; border-radius: 11px; padding: 14px;
+  font-family: var(--pixel); font-size: 8px;
+  letter-spacing: 0.12em; cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
+.login-btn:hover { opacity: 0.9; }
+.login-btn:active { transform: scale(0.98); }
+.login-err {
+  font-family: var(--pixel); font-size: 6.5px;
+  color: #ff6b6b; text-align: center;
+  display: none; animation: shake 0.3s ease;
+}
+@keyframes shake {
+  0%,100% { transform:translateX(0); }
+  25%      { transform:translateX(-6px); }
+  75%      { transform:translateX(6px); }
+}
+.login-note {
+  border-top: 1px solid var(--border);
+  padding-top: 18px; text-align: center;
+  font-size: 11px; color: var(--t25); line-height: 1.7;
+}
+
+/* ═══════════════════════════════════════════
+   APP SHELL
+═══════════════════════════════════════════ */
+#app {
+  display: none;
+  flex-direction: column;
+  height: 100vh; height: 100dvh;
+  width: 100%;
+  position: relative; z-index: 1;
+}
+#app.visible { display: flex; }
+
+/* Header */
+.app-header {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(6,6,6,0.92);
+  backdrop-filter: blur(12px);
+  flex-shrink: 0; z-index: 10;
+}
+.hdr-brand { display: flex; align-items: center; gap: 10px; }
+.hdr-logo {
+  width: 30px; height: 30px; border-radius: 8px;
+  border: 1px solid var(--fuchsia-25); overflow: hidden; flex-shrink: 0;
+}
+.hdr-logo img { width:100%; height:100%; object-fit: cover; }
+.hdr-logo-fb { font-size:18px; display:flex; align-items:center; justify-content:center; height:100%; }
+.hdr-name {
+  font-family: var(--pixel); font-size: 6.5px;
+  color: var(--fuchsia); line-height: 1.9;
+  letter-spacing: 0.12em;
+}
+.hdr-sub { color: var(--t25); font-size: 5px; }
+.hdr-chips { display: flex; align-items: center; gap: 7px; }
+.chip {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 20px; padding: 5px 10px;
+  font-family: var(--pixel); font-size: 7px;
+}
+.chip-gold   { color: var(--gold);   border-color: rgba(255,215,0,0.2); }
+.chip-fuchsia{ color: var(--fuchsia);border-color: var(--fuchsia-25); }
+.chip-orange { color: var(--orange); border-color: rgba(255,107,53,0.2); }
+
+/* Tab Nav */
+.tab-nav {
+  display: flex; border-bottom: 1px solid var(--border);
+  background: var(--bg); flex-shrink: 0;
+  overflow-x: auto; scrollbar-width: none;
+}
+.tab-nav::-webkit-scrollbar { display: none; }
+.tab-btn {
+  flex: 1; min-width: 64px;
+  padding: 10px 6px 8px;
+  background: none; border: none; color: var(--t40);
+  font-family: var(--pixel); font-size: 5.5px;
+  letter-spacing: 0.07em; cursor: pointer;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 5px;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+.tab-btn .ti { font-size: 15px; }
+.tab-btn.active { color: var(--fuchsia); border-bottom-color: var(--fuchsia); }
+.tab-btn:hover:not(.active) { color: var(--t60); }
+
+/* Tab Content */
+.tab-content { flex: 1; overflow-y: auto; overscroll-behavior: contain; }
+.tab-pane { display: none; padding: 16px; min-height: 100%; }
+.tab-pane.active { display: block; }
+
+/* ═══════════════════════════════════════════
+   HOME TAB
+═══════════════════════════════════════════ */
+
+/* XP Row */
+.xp-row {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px;
+}
+.xp-lv {
+  font-family: var(--pixel); font-size: 7px;
+  color: var(--fuchsia); white-space: nowrap;
+}
+.xp-track {
+  flex: 1; height: 5px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 3px; overflow: hidden;
+  border: 1px solid var(--border);
+}
+.xp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--fuchsia), rgba(255,159,242,0.5));
+  border-radius: 3px; transition: width 0.6s ease;
+}
+.xp-pts {
+  font-family: var(--pixel); font-size: 5.5px;
+  color: var(--t25); white-space: nowrap;
+}
+
+/* Cat Room */
+.cat-room {
+  position: relative; border-radius: 18px; overflow: hidden;
+  background: linear-gradient(180deg, #070414 0%, #0a0920 40%, #0b0b0b 100%);
+  border: 1px solid var(--fuchsia-25);
+  min-height: 240px;
+  display: flex; align-items: flex-end; justify-content: center;
+  padding: 16px 16px 20px; margin-bottom: 14px;
+}
+/* Room shimmer sweep */
+.cat-room::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(105deg, transparent 30%, rgba(255,159,242,0.03) 50%, transparent 70%);
+  background-size: 200%; animation: room-shimmer 4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes room-shimmer {
+  0%,100% { background-position: -100% center; }
+  50%      { background-position: 200% center; }
+}
+/* Room decorations */
+.room-deco {
+  position: absolute; font-size: 26px; line-height: 1;
+  user-select: none; pointer-events: none;
+}
+.rd-window { top: 14px; left: 16px; font-size: 30px; }
+.rd-plant  { bottom: 52px; right: 18px; font-size: 24px; }
+.rd-bowl   { bottom: 52px; left: 18px; font-size: 20px; }
+.rd-s1 { top:18px; right:22px; font-size:12px; opacity:0.4; animation: twinkle 2.2s ease-in-out infinite; }
+.rd-s2 { top:32px; right:52px; font-size: 9px; opacity:0.3; animation: twinkle 3s   ease-in-out infinite 0.6s; }
+.rd-s3 { top:16px; left:72px;  font-size: 9px; opacity:0.2; animation: twinkle 2.7s ease-in-out infinite 1.2s; }
+@keyframes twinkle {
+  0%,100% { opacity:0.15; transform:scale(1); }
+  50%      { opacity:0.55; transform:scale(1.25); }
+}
+/* Floor */
+.room-floor {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 52px;
+  background: linear-gradient(transparent, rgba(255,159,242,0.04));
+  border-top: 1px solid rgba(255,159,242,0.07);
+}
+/* Cushion */
+.cat-cushion {
+  position: absolute; bottom: 36px;
+  width: 90px; height: 18px;
+  background: rgba(255,159,242,0.1);
+  border-radius: 50%;
+  border: 1px solid rgba(255,159,242,0.2);
+  box-shadow: 0 0 20px rgba(255,159,242,0.1);
+}
+/* Cat character */
+.cat-wrap {
+  position: relative; z-index: 3;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 3px;
+  animation: idle-bob 3s ease-in-out infinite;
+}
+@keyframes idle-bob {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-9px); }
+}
+.cat-wrap.a-feed  { animation: a-eat   0.45s ease-in-out 5; }
+.cat-wrap.a-play  { animation: a-play  0.32s ease-in-out 7; }
+.cat-wrap.a-sleep { animation: a-sleep 4s   ease-in-out infinite; }
+.cat-wrap.a-clean { animation: a-spin  0.38s ease-in-out 6; }
+.cat-wrap.a-pet   { animation: a-pet   0.28s ease-in-out 7; }
+@keyframes a-eat   { 0%,100%{transform:translateY(0)}  50%{transform:translateY(5px) scale(1.06)} }
+@keyframes a-play  { 0%,100%{transform:translateX(0) rotate(0)} 30%{transform:translateX(-12px) rotate(-8deg)} 70%{transform:translateX(12px) rotate(8deg)} }
+@keyframes a-sleep { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(4px) scale(0.97)} }
+@keyframes a-spin  { 0%,100%{transform:rotate(0)} 30%{transform:rotate(-10deg)} 70%{transform:rotate(10deg)} }
+@keyframes a-pet   { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+.cat-acc-top {
+  font-size: 26px; line-height: 1; margin-bottom: -6px; z-index: 4;
+  transition: all 0.3s ease;
+}
+.cat-emoji {
+  font-size: 70px; line-height: 1;
+  user-select: none; transition: all 0.25s;
+}
+.cat-name-tag {
+  font-family: var(--pixel); font-size: 6px;
+  color: var(--fuchsia); letter-spacing: 0.1em; text-align: center;
+}
+.cat-mood {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(0,0,0,0.55); border: 1px solid var(--fuchsia-25);
+  border-radius: 20px; padding: 4px 10px;
+  font-family: var(--pixel); font-size: 5.5px;
+  color: var(--fuchsia); letter-spacing: 0.06em;
+}
+/* Particles */
+.cat-particles {
+  position: absolute; inset: 0;
+  pointer-events: none; overflow: hidden; z-index: 5;
+}
+.particle {
+  position: absolute; font-size: 18px;
+  animation: par-up 1.4s ease-out forwards;
+}
+@keyframes par-up {
+  0%  { opacity:1; transform: translateY(0) scale(1) rotate(0deg); }
+  100%{ opacity:0; transform: translateY(-75px) scale(0.4) rotate(20deg); }
+}
+
+/* Stats */
+.stats { display: flex; flex-direction: column; gap: 9px; margin-bottom: 14px; }
+.stat-row { display: flex; align-items: center; gap: 9px; }
+.stat-ico { font-size: 15px; width: 22px; text-align: center; flex-shrink: 0; }
+.stat-lbl {
+  font-family: var(--pixel); font-size: 5.5px;
+  color: var(--t40); width: 68px; flex-shrink: 0;
+  letter-spacing: 0.06em;
+}
+.stat-track {
+  flex: 1; height: 7px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 4px; overflow: hidden;
+  border: 1px solid var(--border);
+}
+.stat-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease, background 0.5s; }
+.stat-val {
+  font-family: var(--pixel); font-size: 6.5px;
+  color: var(--text); width: 26px; text-align: right; flex-shrink: 0;
+}
+
+/* Action buttons */
+.actions {
+  display: grid; grid-template-columns: repeat(5,1fr);
+  gap: 7px; margin-bottom: 16px;
+}
+.act-btn {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 5px;
+  padding: 11px 6px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 13px; cursor: pointer;
+  font-family: var(--pixel); font-size: 5px;
+  color: var(--t40); letter-spacing: 0.04em;
+  position: relative; overflow: hidden;
+  transition: border-color 0.2s, color 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+.act-btn:hover {
+  border-color: var(--fuchsia-35);
+  color: var(--fuchsia);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255,159,242,0.12);
+}
+.act-btn:active { transform: scale(0.93); }
+.act-btn.cooldown { opacity: 0.38; cursor: not-allowed; }
+.act-btn.cooldown:hover { transform: none; box-shadow: none; }
+.act-ico { font-size: 21px; }
+.cd-bar {
+  position: absolute; bottom: 0; left: 0;
+  height: 2px; background: var(--fuchsia);
+  border-radius: 0 1px 1px 0;
+}
+
+/* Section card */
+.sec-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 15px;
+  margin-bottom: 14px;
+}
+.sec-lbl {
+  font-family: var(--pixel); font-size: 6px;
+  color: var(--fuchsia); letter-spacing: 0.18em;
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.sec-lbl::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* Cat selector */
+.cat-selector { display: flex; gap: 8px; flex-wrap: wrap; }
+.cat-opt {
+  font-size: 30px; padding: 8px; border-radius: 10px;
+  border: 2px solid transparent;
+  background: rgba(255,255,255,0.025);
+  cursor: pointer; transition: all 0.2s;
+  user-select: none;
+}
+.cat-opt:hover { background: var(--fuchsia-08); transform: scale(1.1); }
+.cat-opt.sel { border-color: var(--fuchsia); background: var(--fuchsia-08); }
+
+/* Badges */
+.badges { display: flex; flex-wrap: wrap; gap: 7px; }
+.badge {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(255,255,255,0.025); border: 1px solid var(--border);
+  border-radius: 20px; padding: 5px 10px;
+  font-family: var(--pixel); font-size: 5px;
+  color: var(--t40);
+}
+.badge.lit {
+  border-color: var(--fuchsia-25); color: var(--fuchsia);
+  background: var(--fuchsia-08);
+}
+
+/* ═══════════════════════════════════════════
+   REWARDS TAB
+═══════════════════════════════════════════ */
+.rw-header {
+  display: flex; align-items: center;
+  justify-content: space-between; margin-bottom: 18px;
+  flex-wrap: wrap; gap: 10px;
+}
+.rw-title { font-family: var(--pixel); font-size: 9px; color: var(--fuchsia); margin-bottom: 3px; }
+.rw-sub   { font-size: 13px; color: var(--t40); }
+.coins-box {
+  display: flex; align-items: center; gap: 9px;
+  background: rgba(255,215,0,0.07);
+  border: 1px solid rgba(255,215,0,0.2);
+  border-radius: 13px; padding: 10px 16px;
+}
+.coins-ico { font-size: 20px; }
+.coins-num { font-family: var(--pixel); font-size: 13px; color: var(--gold); }
+.coins-sub { font-family: var(--pixel); font-size: 5.5px; color: rgba(255,215,0,0.5); }
+
+/* Streak card */
+.streak-card {
+  display: flex; align-items: center; gap: 16px;
+  background: linear-gradient(135deg, rgba(255,107,53,0.1), rgba(255,159,242,0.04));
+  border: 1px solid rgba(255,107,53,0.25);
+  border-radius: var(--radius); padding: 16px;
+  margin-bottom: 18px;
+}
+.streak-fire { font-size: 38px; }
+.streak-days { font-family: var(--pixel); font-size: 15px; color: var(--orange); margin-bottom: 3px; }
+.streak-lbl  { font-family: var(--pixel); font-size: 5.5px; color: rgba(255,107,53,0.65); letter-spacing: 0.1em; }
+.streak-btn {
+  margin-left: auto; flex-shrink: 0;
+  background: var(--orange); color: #fff; border: none;
+  border-radius: 10px; padding: 10px 14px;
+  font-family: var(--pixel); font-size: 5.5px; letter-spacing: 0.08em;
+  cursor: pointer; transition: opacity 0.2s, transform 0.15s;
+  white-space: nowrap;
+}
+.streak-btn:hover { opacity: 0.88; transform: scale(1.03); }
+.streak-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+/* Task section */
+.task-sec-ttl {
+  font-family: var(--pixel); font-size: 6px;
+  color: var(--t40); letter-spacing: 0.12em;
+  margin-bottom: 10px;
+}
+.task-card {
+  display: flex; align-items: center; gap: 13px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 13px; padding: 13px 14px;
+  margin-bottom: 8px; transition: border-color 0.2s;
+}
+.task-card:hover { border-color: var(--fuchsia-25); }
+.task-card.done { opacity: 0.45; }
+.task-ico {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: rgba(255,255,255,0.03);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0; font-family: var(--sans);
+}
+.task-info { flex: 1; min-width: 0; }
+.task-name { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+.task-rwd  { font-family: var(--pixel); font-size: 5.5px; color: var(--gold); }
+.task-type { color: var(--t25); margin-left: 6px; }
+.task-go {
+  flex-shrink: 0;
+  background: none; border: 1px solid var(--fuchsia-25);
+  border-radius: 20px; padding: 7px 13px;
+  font-family: var(--pixel); font-size: 5.5px;
+  color: var(--fuchsia); cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  white-space: nowrap;
+}
+.task-go:hover { background: var(--fuchsia-08); transform: scale(1.03); }
+.task-done-badge {
+  flex-shrink: 0;
+  background: rgba(80,200,120,0.12);
+  border: 1px solid rgba(80,200,120,0.28);
+  border-radius: 20px; padding: 7px 12px;
+  font-family: var(--pixel); font-size: 5.5px;
+  color: var(--green); white-space: nowrap;
+}
+
+/* Shop preview */
+.shop-grid {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 9px;
+  margin-top: 10px;
+}
+.shop-item {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 13px; padding: 14px 8px;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 7px;
+  transition: border-color 0.2s, transform 0.2s;
+  cursor: pointer;
+}
+.shop-item:hover { border-color: var(--fuchsia-25); transform: translateY(-2px); }
+.shop-emoji { font-size: 26px; }
+.shop-name { font-family: var(--pixel); font-size: 4.5px; color: var(--t40); text-align: center; letter-spacing: 0.04em; }
+.shop-price{ font-family: var(--pixel); font-size: 6px; color: var(--gold); }
+
+/* ═══════════════════════════════════════════
+   INVENTORY TAB
+═══════════════════════════════════════════ */
+.inv-filters {
+  display: flex; gap: 7px; margin-bottom: 14px;
+  overflow-x: auto; scrollbar-width: none; padding-bottom: 2px;
+}
+.inv-filters::-webkit-scrollbar { display: none; }
+.fil-btn {
+  padding: 6px 13px; border-radius: 20px;
+  border: 1px solid var(--border);
+  background: none; color: var(--t40);
+  font-family: var(--pixel); font-size: 5.5px;
+  cursor: pointer; white-space: nowrap;
+  transition: all 0.2s;
+}
+.fil-btn.active {
+  border-color: var(--fuchsia);
+  color: var(--fuchsia); background: var(--fuchsia-08);
+}
+.inv-grid {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 9px;
+}
+.inv-item {
+  position: relative; background: var(--card);
+  border-radius: 13px; padding: 14px 8px 10px;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 7px;
+  cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid var(--border);
+  border-top-width: 2px; overflow: hidden;
+}
+.inv-item:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+.rarity-tag {
+  position: absolute; top: 6px; right: 6px;
+  font-family: var(--pixel); font-size: 4px;
+  padding: 2px 5px; border-radius: 4px;
+  letter-spacing: 0.04em;
+}
+.r-common    { background:rgba(139,139,139,0.18); color:#8B8B8B; }
+.r-rare      { background:rgba( 74,144,217,0.18); color:#4A90D9; }
+.r-epic      { background:rgba(155, 89,182,0.18); color:#9B59B6; }
+.r-legendary { background:rgba(255,215,  0,0.18); color:#FFD700; }
+.inv-emoji { font-size: 30px; margin-top: 6px; }
+.inv-name  { font-family: var(--pixel); font-size: 4.5px; color: var(--t40); text-align:center; letter-spacing:0.04em; }
+.inv-qty   { font-family: var(--pixel); font-size: 5.5px; color: var(--t25); }
+.inv-equipped {
+  position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%);
+  font-family: var(--pixel); font-size: 4px;
+  color: var(--fuchsia); background: var(--fuchsia-08);
+  border: 1px solid var(--fuchsia-25); border-radius: 4px;
+  padding: 2px 6px; white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════════
+   NFT TAB
+═══════════════════════════════════════════ */
+.nft-hero {
+  text-align: center; padding: 28px 12px 22px;
+}
+.nft-badge-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,215,0,0.07);
+  border: 1px solid rgba(255,215,0,0.22);
+  border-radius: 20px; padding: 6px 14px;
+  font-family: var(--pixel); font-size: 5.5px;
+  color: var(--gold); margin-bottom: 18px;
+  letter-spacing: 0.14em;
+}
+.nft-title {
+  font-family: var(--pixel);
+  font-size: clamp(11px, 3.5vw, 17px);
+  color: var(--text); line-height: 1.9;
+  margin-bottom: 12px;
+}
+.nft-title span { color: var(--fuchsia); }
+.nft-subtitle {
+  font-size: 13px; color: var(--t40);
+  max-width: 300px; margin: 0 auto 26px;
+  line-height: 1.65; font-weight: 300;
+}
+/* NFT preview cards */
+.nft-preview {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 9px; margin-bottom: 22px;
+}
+.nft-card {
+  position: relative;
+  background: linear-gradient(155deg, #0c0421, #070714);
+  border: 1px solid var(--fuchsia-25);
+  border-radius: 14px; padding: 18px 8px;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 7px; overflow: hidden;
+}
+.nft-card::before {
+  content:''; position:absolute; inset:-60%;
+  background: radial-gradient(circle, rgba(255,159,242,0.04), transparent 70%);
+  animation: nft-rot 8s linear infinite;
+}
+@keyframes nft-rot { from{transform:rotate(0)} to{transform:rotate(360deg)} }
+.nft-lock {
+  position: absolute; inset: 0;
+  background: rgba(4,4,8,0.72);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; backdrop-filter: blur(2px);
+}
+.nft-cat  { font-size: 38px; position: relative; z-index:1; }
+.nft-cname{ font-family: var(--pixel); font-size: 4.5px; color: var(--fuchsia); text-align:center; letter-spacing:0.08em; position:relative; z-index:1; }
+.nft-ctrait{ font-family: var(--pixel); font-size: 4px; color: var(--t25); text-align:center; position:relative; z-index:1; }
+/* NFT features */
+.nft-features { display: flex; flex-direction: column; gap: 9px; margin-bottom: 22px; }
+.nft-feat {
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 13px 14px;
+}
+.nft-feat-ico { font-size: 22px; flex-shrink: 0; }
+.nft-feat-title { font-family: var(--pixel); font-size: 6.5px; color: var(--text); margin-bottom: 4px; }
+.nft-feat-desc  { font-size: 11.5px; color: var(--t40); line-height: 1.5; }
+/* NFT CTA */
+.nft-cta {
+  display: block; width: 100%;
+  background: linear-gradient(135deg, var(--fuchsia-15), rgba(255,215,0,0.08));
+  border: 1px solid var(--fuchsia-25); border-radius: 13px;
+  padding: 15px; font-family: var(--pixel); font-size: 7.5px;
+  color: var(--fuchsia); text-align: center; cursor: pointer;
+  transition: all 0.2s; letter-spacing: 0.1em;
+}
+.nft-cta:hover { background: var(--fuchsia-15); transform: translateY(-1px); }
+.nft-disclaimer {
+  text-align:center; margin-top:14px;
+  font-family: var(--pixel); font-size: 4.5px;
+  color: var(--t25); line-height: 2.2; letter-spacing: 0.08em;
+}
+
+/* ═══════════════════════════════════════════
+   NFT COLLECTION CARDS
+═══════════════════════════════════════════ */
+.nft-collection-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 11px;
+  margin-bottom: 24px;
+}
+/* 5th card: span full width on 2-col, half-width centered */
+.nft-col-card:last-child:nth-child(odd) {
+  grid-column: span 2;
+  max-width: 50%;
+  width: 100%;
+  margin: 0 auto;
+}
+.nft-col-card {
+  background: var(--card2);
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+.nft-col-card:hover { transform: translateY(-5px); }
+
+.nft-col-card.nft-legendary { border-color: rgba(255,215,0,0.30); }
+.nft-col-card.nft-legendary:hover { box-shadow: 0 10px 40px rgba(255,215,0,0.15); }
+.nft-col-card.nft-epic      { border-color: rgba(155,89,182,0.30); }
+.nft-col-card.nft-epic:hover { box-shadow: 0 10px 40px rgba(155,89,182,0.15); }
+.nft-col-card.nft-rare      { border-color: rgba(74,144,217,0.30); }
+.nft-col-card.nft-rare:hover { box-shadow: 0 10px 40px rgba(74,144,217,0.15); }
+
+/* Image wrapper — square aspect ratio */
+.nft-img-wrap {
+  position: relative;
+  width: 100%; aspect-ratio: 1/1;
+  overflow: hidden;
+  background: linear-gradient(160deg, #0c0421 0%, #07071a 100%);
+}
+.nft-img {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+  transition: transform 0.45s ease;
+}
+.nft-col-card:hover .nft-img { transform: scale(1.06); }
+.nft-img-fb {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 52px;
+  background: linear-gradient(160deg, #0c0421 0%, #07071a 100%);
+}
+/* Gradient overlay on image bottom for readability */
+.nft-img-gradient {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 40%; pointer-events: none;
+  background: linear-gradient(transparent, rgba(7,7,26,0.6));
+}
+
+/* Rarity pill on image */
+.nft-rarity-pill {
+  position: absolute; top: 8px; left: 8px;
+  font-family: var(--pixel); font-size: 5px;
+  padding: 4px 9px; border-radius: 20px;
+  letter-spacing: 0.08em; backdrop-filter: blur(10px);
+  z-index: 1;
+}
+.nft-rarity-pill.legendary { background: rgba(255,215,0,0.22); border:1px solid rgba(255,215,0,0.5); color:#FFD700; }
+.nft-rarity-pill.epic      { background: rgba(155,89,182,0.22); border:1px solid rgba(155,89,182,0.5); color:#D2A8FF; }
+.nft-rarity-pill.rare      { background: rgba(74,144,217,0.22); border:1px solid rgba(74,144,217,0.5); color:#85C1E9; }
+
+/* Token number badge (top-right) */
+.nft-token-badge {
+  position: absolute; top: 8px; right: 8px;
+  font-family: var(--pixel); font-size: 5px;
+  color: rgba(255,255,255,0.5);
+  background: rgba(0,0,0,0.45); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px; padding: 3px 7px;
+}
+
+/* Card info section */
+.nft-col-info { padding: 10px 12px 13px; }
+.nft-col-name {
+  font-family: var(--pixel); font-size: 7.5px;
+  color: var(--text); letter-spacing: 0.07em;
+  margin-bottom: 3px; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.nft-col-id {
+  font-family: var(--pixel); font-size: 5px;
+  color: var(--t25); margin-bottom: 9px; letter-spacing: 0.05em;
+}
+.nft-traits-row { display: flex; flex-wrap: wrap; gap: 4px; }
+.nft-trait {
+  font-family: var(--pixel); font-size: 4px;
+  padding: 3px 6px; border-radius: 4px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  color: var(--t40); white-space: nowrap;
+}
+
+/* Collection stats bar */
+.nft-stats-bar {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 8px; margin-bottom: 22px;
+}
+.nft-stat-item {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 10px;
+  text-align: center;
+}
+.nft-stat-num {
+  font-family: var(--pixel); font-size: 11px;
+  color: var(--fuchsia); margin-bottom: 4px;
+}
+.nft-stat-lbl {
+  font-family: var(--pixel); font-size: 5px;
+  color: var(--t25); letter-spacing: 0.06em;
+}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+═══════════════════════════════════════════ */
+
+/* ── Tiny phones (< 360px) ─────────────── */
+@media (max-width: 359px) {
+  .actions  { gap: 4px; }
+  .act-btn  { padding: 8px 3px; font-size: 4.5px; }
+  .act-ico  { font-size: 17px; }
+  .hdr-chips .chip:not(:last-child) { display: none; }
+  .cat-room { min-height: 200px; }
+  .cat-emoji { font-size: 58px; }
+  .xp-lv, .xp-pts { font-size: 5.5px; }
+}
+
+/* ── Landscape mobile (short viewport) ─── */
+@media (max-height: 520px) and (orientation: landscape) {
+  .cat-room  { min-height: 130px; padding: 8px 12px 12px; }
+  .cat-emoji { font-size: 48px; }
+  .cat-acc-top { font-size: 20px; margin-bottom: -4px; }
+  .cat-wrap  { gap: 1px; }
+  .cat-name-tag { display: none; }
+  .stats     { gap: 5px; margin-bottom: 10px; }
+  .stat-track{ height: 5px; }
+  .xp-row    { margin-bottom: 8px; }
+  .tab-pane  { padding: 10px 14px; }
+  .actions   { gap: 5px; margin-bottom: 10px; }
+  .act-btn   { padding: 8px 4px; }
+  .sec-card  { padding: 10px 12px; margin-bottom: 10px; }
+}
+
+/* ── Tablet & up (≥ 640px) ─────────────── */
+@media (min-width: 640px) {
+  html, body { overflow: auto; }
+
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px 20px;
+    /* Branded desktop bg: fuchsia glow from bottom */
+    background:
+      radial-gradient(ellipse 1100px 600px at 50% 108%, rgba(255,159,242,0.09) 0%, transparent 65%),
+      radial-gradient(ellipse 600px 300px at 20% 0%,   rgba(255,159,242,0.03) 0%, transparent 60%),
+      var(--bg);
+  }
+
+  /* Login stays full-screen overlay */
+  #login { padding: 32px; }
+
+  .login-card {
+    max-width: 440px;
+    padding: 48px 44px;
+    border-radius: 26px;
+    box-shadow: 0 0 120px rgba(255,159,242,0.1), 0 40px 80px rgba(0,0,0,0.7);
+  }
+  .login-title  { font-size: 10px; }
+  .login-tagline{ font-size: 13px; }
+
+  /* App becomes a floating card */
+  #app {
+    max-width: 540px;
+    width: 100%;
+    height: min(92vh, 920px);
+    height: min(92dvh, 920px);
+    border-radius: 22px;
+    border: 1px solid var(--fuchsia-25);
+    overflow: hidden;
+    box-shadow:
+      0 0 0 1px rgba(255,159,242,0.06),
+      0 0 80px  rgba(255,159,242,0.12),
+      0 48px 96px rgba(0,0,0,0.75);
+    /* Subtle inner glow at top */
+    background: linear-gradient(180deg, rgba(255,159,242,0.025) 0%, transparent 80px), var(--bg);
+  }
+
+  .app-header { border-radius: 22px 22px 0 0; }
+
+  /* Cat room gets more breathing room */
+  .cat-room  { min-height: 268px; }
+  .cat-emoji { font-size: 76px; }
+
+  /* Wider inventory & shop grids */
+  .inv-grid  { grid-template-columns: repeat(4, 1fr); }
+  .shop-grid { grid-template-columns: repeat(4, 1fr); }
+
+  /* NFT collection: 3-col on tablet+ */
+  .nft-collection-grid { grid-template-columns: repeat(3, 1fr); }
+  /* Override 5th-card full-span (not needed at 3-col) */
+  .nft-col-card:last-child:nth-child(odd) { grid-column: auto; max-width: none; }
+
+  /* Tab pane padding */
+  .tab-pane { padding: 20px 24px; }
+
+  /* NFT text slightly larger */
+  .nft-feat-desc { font-size: 12.5px; }
+
+  /* Toast near bottom of app card area */
+  #toast { bottom: 32px; }
+
+  /* Slightly larger action buttons */
+  .act-btn { padding: 12px 7px; }
+  .act-ico  { font-size: 22px; }
+}
+
+/* ── Desktop / Laptop (≥ 900px) ────────── */
+@media (min-width: 900px) {
+  body { padding: 32px 48px; }
+
+  #app {
+    max-width: 560px;
+    height: min(90vh, 940px);
+    height: min(90dvh, 940px);
+  }
+
+  .hdr-name { font-size: 7px; }
+  .chip     { font-size: 7.5px; padding: 6px 12px; }
+
+  .tab-btn      { padding: 12px 8px 10px; font-size: 6px; }
+  .tab-btn .ti  { font-size: 17px; }
+
+  .cat-room  { min-height: 288px; }
+  .cat-emoji { font-size: 80px; }
+  .cat-acc-top { font-size: 28px; }
+
+  .act-btn { padding: 13px 8px; font-size: 5.5px; }
+  .act-ico  { font-size: 24px; }
+
+  .stat-lbl { font-size: 6px; width: 76px; }
+  .stat-val { font-size: 7px; }
+
+  .xp-lv  { font-size: 7.5px; }
+  .xp-pts { font-size: 6px; }
+
+  /* Slightly larger type in reward / task sections */
+  .task-name  { font-size: 15px; }
+  .rw-title   { font-size: 10px; }
+  .rw-sub     { font-size: 14px; }
+
+  /* More comfortable NFT features */
+  .nft-feat { padding: 15px 18px; }
+  .nft-title { font-size: clamp(13px, 2.8vw, 18px); }
+}
+
+/* ── Large desktop (≥ 1280px) ──────────── */
+@media (min-width: 1280px) {
+  body { padding: 40px 60px; }
+
+  #app {
+    max-width: 580px;
+    height: min(88vh, 960px);
+    height: min(88dvh, 960px);
+  }
+
+  .cat-room  { min-height: 300px; }
+  .cat-emoji { font-size: 84px; }
+}
+
+/* ── 4K / very large (≥ 1920px) ────────── */
+@media (min-width: 1920px) {
+  #app { max-width: 620px; }
+  .cat-emoji { font-size: 88px; }
+  .tab-btn   { font-size: 7px; }
+  .tab-btn .ti { font-size: 18px; }
+}
+  </style>
+</head>
+<body>
+
+<!-- ── Floating paws ─────────────────────── -->
+<div id="paw-layer"></div>
+
+<!-- ── Toast ─────────────────────────────── -->
+<div id="toast"></div>
+
+<!-- ── Level-up modal ────────────────────── -->
+<div id="lu-modal">
+  <div class="lu-card">
+    <div class="lu-icon">🎉</div>
+    <div class="lu-title">LEVEL UP!</div>
+    <div class="lu-sub" id="lu-sub">You reached Level 2!</div>
+    <button class="lu-btn" onclick="closeLU()">AWESOME! →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     LOGIN SCREEN
+══════════════════════════════════════════ -->
+<div id="login">
+  <div class="login-card">
+
+    <div class="login-brand">
+      <div class="login-logo">
+        <img src="/assets/cats_logo.png" alt="Cats of Paraiso"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'" />
+        <div class="login-logo-fallback" style="display:none">🐱</div>
+      </div>
+      <div class="login-title">CATS OF PARAISO<br>✦ PAWVERSE ✦</div>
+      <div class="login-tagline">Virtual Cat · Web3 Community · Pet Simulator</div>
+    </div>
+
+    <div class="login-form">
+      <div class="form-group">
+        <label class="form-label" for="u">USERNAME</label>
+        <input class="form-input" id="u" type="text" placeholder="enter username" autocomplete="off"
+               onkeydown="if(event.key==='Enter')document.getElementById('p').focus()" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="p">PASSWORD</label>
+        <input class="form-input" id="p" type="password" placeholder="enter password"
+               onkeydown="if(event.key==='Enter')doLogin()" />
+      </div>
+      <div class="login-err" id="lerr">❌ Wrong credentials — try again</div>
+      <button class="login-btn" onclick="doLogin()">ENTER PAWVERSE →</button>
+    </div>
+
+    <div class="login-note">
+      🔐 Demo access only &mdash; prototype preview.<br>
+      No real data is stored or transmitted.
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     APP
+══════════════════════════════════════════ -->
+<div id="app">
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="hdr-brand">
+      <div class="hdr-logo">
+        <img src="/assets/cats_logo.png" alt="CoP"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+        <div class="hdr-logo-fb" style="display:none">🐱</div>
+      </div>
+      <div>
+        <div class="hdr-name">PAWVERSE</div>
+        <div class="hdr-name hdr-sub">CATS OF PARAISO</div>
+      </div>
+    </div>
+    <div class="hdr-chips">
+      <div class="chip chip-orange">🔥 <span id="h-streak">3</span>d</div>
+      <div class="chip chip-fuchsia">⭐ Lv<span id="h-lv">1</span></div>
+      <div class="chip chip-gold">🪙 <span id="h-coins">50</span></div>
+    </div>
+  </header>
+
+  <!-- Tab Nav -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('home',this)">
+      <span class="ti">🏠</span>MY CAT
+    </button>
+    <button class="tab-btn" onclick="switchTab('rewards',this)">
+      <span class="ti">🎁</span>REWARDS
+    </button>
+    <button class="tab-btn" onclick="switchTab('inventory',this)">
+      <span class="ti">🎒</span>ITEMS
+    </button>
+    <button class="tab-btn" onclick="switchTab('nft',this)">
+      <span class="ti">✨</span>NFT
+    </button>
+  </nav>
+
+  <!-- Tab content -->
+  <div class="tab-content">
+
+    <!-- ─── HOME ──────────────────────────── -->
+    <div class="tab-pane active" id="tab-home">
+
+      <!-- XP bar -->
+      <div class="xp-row">
+        <div class="xp-lv">⭐ LV <span id="xp-lv">1</span></div>
+        <div class="xp-track"><div class="xp-fill" id="xp-fill" style="width:0%"></div></div>
+        <div class="xp-pts"><span id="xp-cur">0</span>/<span id="xp-max">100</span> XP</div>
+      </div>
+
+      <!-- Cat room -->
+      <div class="cat-room">
+        <div class="room-deco rd-window">🪟</div>
+        <div class="room-deco rd-plant">🪴</div>
+        <div class="room-deco rd-bowl">🍜</div>
+        <div class="room-deco rd-s1">⭐</div>
+        <div class="room-deco rd-s2">✨</div>
+        <div class="room-deco rd-s3">⭐</div>
+        <div class="room-floor"></div>
+        <div class="cat-cushion"></div>
+        <div class="cat-particles" id="cat-particles"></div>
+        <div class="cat-wrap" id="cat-wrap">
+          <div class="cat-acc-top" id="cat-acc">🎀</div>
+          <div class="cat-emoji" id="cat-emoji">😺</div>
+          <div class="cat-name-tag" id="cat-name">✦ MOCHI ✦</div>
+          <div class="cat-mood" id="cat-mood">😊 HAPPY</div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats">
+        <div class="stat-row">
+          <span class="stat-ico">🍖</span>
+          <span class="stat-lbl">Hunger</span>
+          <div class="stat-track"><div class="stat-fill" id="sf-hunger"></div></div>
+          <span class="stat-val" id="sv-hunger">75</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-ico">😊</span>
+          <span class="stat-lbl">Happiness</span>
+          <div class="stat-track"><div class="stat-fill" id="sf-happy"></div></div>
+          <span class="stat-val" id="sv-happy">80</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-ico">⚡</span>
+          <span class="stat-lbl">Energy</span>
+          <div class="stat-track"><div class="stat-fill" id="sf-energy"></div></div>
+          <span class="stat-val" id="sv-energy">90</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-ico">✨</span>
+          <span class="stat-lbl">Cleanliness</span>
+          <div class="stat-track"><div class="stat-fill" id="sf-clean"></div></div>
+          <span class="stat-val" id="sv-clean">65</span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="actions">
+        <button class="act-btn" id="ab-feed"  onclick="doAction('feed')">
+          <span class="act-ico">🍣</span>FEED
+          <div class="cd-bar" id="cd-feed" style="width:0"></div>
+        </button>
+        <button class="act-btn" id="ab-play"  onclick="doAction('play')">
+          <span class="act-ico">🎮</span>PLAY
+          <div class="cd-bar" id="cd-play"  style="width:0"></div>
+        </button>
+        <button class="act-btn" id="ab-sleep" onclick="doAction('sleep')">
+          <span class="act-ico">😴</span>SLEEP
+          <div class="cd-bar" id="cd-sleep" style="width:0"></div>
+        </button>
+        <button class="act-btn" id="ab-clean" onclick="doAction('clean')">
+          <span class="act-ico">🛁</span>CLEAN
+          <div class="cd-bar" id="cd-clean" style="width:0"></div>
+        </button>
+        <button class="act-btn" id="ab-pet"   onclick="doAction('pet')">
+          <span class="act-ico">💕</span>PET
+          <div class="cd-bar" id="cd-pet"   style="width:0"></div>
+        </button>
+      </div>
+
+      <!-- Cat style -->
+      <div class="sec-card">
+        <div class="sec-lbl">// CAT STYLE</div>
+        <div class="cat-selector">
+          <div class="cat-opt sel" onclick="pickCat(this,'😺')">😺</div>
+          <div class="cat-opt"    onclick="pickCat(this,'🐱')">🐱</div>
+          <div class="cat-opt"    onclick="pickCat(this,'😸')">😸</div>
+          <div class="cat-opt"    onclick="pickCat(this,'🐈')">🐈</div>
+          <div class="cat-opt"    onclick="pickCat(this,'🐈‍⬛')">🐈‍⬛</div>
+        </div>
+      </div>
+
+      <!-- Achievements -->
+      <div class="sec-card">
+        <div class="sec-lbl">// BADGES</div>
+        <div class="badges">
+          <div class="badge lit">🐾 First Steps</div>
+          <div class="badge lit">💕 Cat Lover</div>
+          <div class="badge lit">🍣 Foodie</div>
+          <div class="badge">🔥 <span style="opacity:.4">5-Day Streak</span></div>
+          <div class="badge">⭐ <span style="opacity:.4">Level 5</span></div>
+          <div class="badge">🎁 <span style="opacity:.4">Task Master</span></div>
+          <div class="badge">💎 <span style="opacity:.4">Legend</span></div>
+        </div>
+      </div>
+
+    </div><!-- /home -->
+
+    <!-- ─── REWARDS ───────────────────────── -->
+    <div class="tab-pane" id="tab-rewards">
+
+      <div class="rw-header">
+        <div>
+          <div class="rw-title">EARN REWARDS</div>
+          <div class="rw-sub">Complete tasks, earn coins, unlock items</div>
+        </div>
+        <div class="coins-box">
+          <span class="coins-ico">🪙</span>
+          <div>
+            <div class="coins-num" id="coins-big">50</div>
+            <div class="coins-sub">COINS</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Daily streak -->
+      <div class="streak-card">
+        <div class="streak-fire">🔥</div>
+        <div>
+          <div class="streak-days"><span id="rw-streak">3</span> DAYS</div>
+          <div class="streak-lbl">DAILY STREAK</div>
+        </div>
+        <button class="streak-btn" id="daily-btn" onclick="claimDaily()">CLAIM +15 🪙</button>
+      </div>
+
+      <!-- One-time tasks -->
+      <div class="task-sec-ttl">ONE-TIME TASKS</div>
+      <div id="tasks-ot"></div>
+
+      <!-- Daily tasks -->
+      <div class="task-sec-ttl" style="margin-top:18px">DAILY TASKS</div>
+      <div id="tasks-daily"></div>
+
+      <!-- Shop preview -->
+      <div style="margin-top:22px">
+        <div class="task-sec-ttl">ITEM SHOP <span style="color:var(--fuchsia)">— COMING SOON</span></div>
+        <div class="shop-grid">
+          <div class="shop-item" onclick="toast('🛒 Shop opening soon!')">
+            <span class="shop-emoji">👑</span>
+            <div class="shop-name">Pixel Crown</div>
+            <div class="shop-price">🪙 120</div>
+          </div>
+          <div class="shop-item" onclick="toast('🛒 Shop opening soon!')">
+            <span class="shop-emoji">🧶</span>
+            <div class="shop-name">Yarn Ball</div>
+            <div class="shop-price">🪙 30</div>
+          </div>
+          <div class="shop-item" onclick="toast('🛒 Shop opening soon!')">
+            <span class="shop-emoji">🐟</span>
+            <div class="shop-name">Tuna Can</div>
+            <div class="shop-price">🪙 20</div>
+          </div>
+          <div class="shop-item" onclick="toast('🛒 Shop opening soon!')">
+            <span class="shop-emoji">📦</span>
+            <div class="shop-name">Mystery Box</div>
+            <div class="shop-price">🪙 200</div>
+          </div>
+          <div class="shop-item" onclick="toast('🛒 Shop opening soon!')">
+            <span class="shop-emoji">🎀</span>
+            <div class="shop-name">Star Bow</div>
+            <div class="shop-price">🪙 50</div>
+          </div>
+          <div class="shop-item" onclick="toast('🛒 Shop opening soon!')">
+            <span class="shop-emoji">✨</span>
+            <div class="shop-name">Galaxy Collar</div>
+            <div class="shop-price">🪙 500</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /rewards -->
+
+    <!-- ─── INVENTORY ─────────────────────── -->
+    <div class="tab-pane" id="tab-inventory">
+
+      <div style="margin-bottom:14px">
+        <div style="font-family:var(--pixel);font-size:9px;color:var(--fuchsia);margin-bottom:3px">INVENTORY</div>
+        <div style="font-size:13px;color:var(--t40)">Your collected items &amp; accessories</div>
+      </div>
+
+      <div class="inv-filters" id="inv-filters">
+        <button class="fil-btn active" onclick="filterInv('all',this)">ALL</button>
+        <button class="fil-btn" onclick="filterInv('accessory',this)">ACCESSORIES</button>
+        <button class="fil-btn" onclick="filterInv('food',this)">FOOD</button>
+        <button class="fil-btn" onclick="filterInv('toy',this)">TOYS</button>
+        <button class="fil-btn" onclick="filterInv('decoration',this)">DECO</button>
+        <button class="fil-btn" onclick="filterInv('special',this)">SPECIAL</button>
+      </div>
+
+      <div class="inv-grid" id="inv-grid"></div>
+
+    </div><!-- /inventory -->
+
+    <!-- ─── NFT ───────────────────────────── -->
+    <div class="tab-pane" id="tab-nft">
+
+      <!-- Hero -->
+      <div class="nft-hero">
+        <div class="nft-badge-pill">✦ &nbsp; GENESIS COLLECTION</div>
+        <div class="nft-title">Meet the<br><span>Legendary Cats</span></div>
+        <div class="nft-subtitle">5 unique on-chain companions with rare traits, exclusive perks, and a story to tell. Coming to the blockchain soon.</div>
+      </div>
+
+      <!-- Collection stats -->
+      <div class="nft-stats-bar">
+        <div class="nft-stat-item">
+          <div class="nft-stat-num">5</div>
+          <div class="nft-stat-lbl">GENESIS</div>
+        </div>
+        <div class="nft-stat-item">
+          <div class="nft-stat-num">2</div>
+          <div class="nft-stat-lbl">LEGENDARY</div>
+        </div>
+        <div class="nft-stat-item">
+          <div class="nft-stat-num">TBA</div>
+          <div class="nft-stat-lbl">MINT DATE</div>
+        </div>
+      </div>
+
+      <!-- NFT Collection Grid -->
+      <div class="nft-collection-grid">
+
+        <!-- 1. Cosmos Rex — Legendary -->
+        <div class="nft-col-card nft-legendary" onclick="toast('🌌 Cosmos Rex — Minting soon!')">
+          <div class="nft-img-wrap">
+            <img src="/assets/nft/nft-1-cosmos-rex.png" alt="Cosmos Rex" class="nft-img"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+            <div class="nft-img-fb" style="display:none">🌌</div>
+            <div class="nft-img-gradient"></div>
+            <div class="nft-rarity-pill legendary">✦ LEGENDARY</div>
+            <div class="nft-token-badge">#001</div>
+          </div>
+          <div class="nft-col-info">
+            <div class="nft-col-name">COSMOS REX</div>
+            <div class="nft-col-id">Genesis Collection · 1 of 1</div>
+            <div class="nft-traits-row">
+              <span class="nft-trait">🌌 Galaxy Robe</span>
+              <span class="nft-trait">👑 Planet Crown</span>
+              <span class="nft-trait">✨ Glow Eyes</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. The Don — Epic -->
+        <div class="nft-col-card nft-epic" onclick="toast('🎩 The Don — Minting soon!')">
+          <div class="nft-img-wrap">
+            <img src="/assets/nft/nft-2-the-don..png" alt="The Don" class="nft-img"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+            <div class="nft-img-fb" style="display:none">🎩</div>
+            <div class="nft-img-gradient"></div>
+            <div class="nft-rarity-pill epic">◆ EPIC</div>
+            <div class="nft-token-badge">#042</div>
+          </div>
+          <div class="nft-col-info">
+            <div class="nft-col-name">THE DON</div>
+            <div class="nft-col-id">Genesis Collection · 1 of 1</div>
+            <div class="nft-traits-row">
+              <span class="nft-trait">👔 Pinstripe</span>
+              <span class="nft-trait">🪙 Gold Tie</span>
+              <span class="nft-trait">💼 Boss Cat</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Shamane — Rare (illustrated) -->
+        <div class="nft-col-card nft-rare" onclick="toast('🪶 Shamane — Minting soon!')">
+          <div class="nft-img-wrap">
+            <img src="/assets/nft/nft-3-shamane.png" alt="Shamane" class="nft-img"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+            <div class="nft-img-fb" style="display:none">🪶</div>
+            <div class="nft-img-gradient"></div>
+            <div class="nft-rarity-pill rare">▲ RARE</div>
+            <div class="nft-token-badge">#007</div>
+          </div>
+          <div class="nft-col-info">
+            <div class="nft-col-name">SHAMANE</div>
+            <div class="nft-col-id">Genesis Collection · 1 of 1</div>
+            <div class="nft-traits-row">
+              <span class="nft-trait">🪶 Tribal Hood</span>
+              <span class="nft-trait">🦴 Bone Amulet</span>
+              <span class="nft-trait">🏹 War Paint</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. The Warrior — Rare (realistic) -->
+        <div class="nft-col-card nft-rare" onclick="toast('⚔️ The Warrior — Minting soon!')">
+          <div class="nft-img-wrap">
+            <img src="/assets/nft/nft-4-warrior.png" alt="The Warrior" class="nft-img"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+            <div class="nft-img-fb" style="display:none">⚔️</div>
+            <div class="nft-img-gradient"></div>
+            <div class="nft-rarity-pill rare">▲ RARE</div>
+            <div class="nft-token-badge">#028</div>
+          </div>
+          <div class="nft-col-info">
+            <div class="nft-col-name">THE WARRIOR</div>
+            <div class="nft-col-id">Genesis Collection · 1 of 1</div>
+            <div class="nft-traits-row">
+              <span class="nft-trait">🗡️ Sacred Cloak</span>
+              <span class="nft-trait">🔮 Battle Marks</span>
+              <span class="nft-trait">🌿 Earth Born</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Moon Queen — Legendary -->
+        <div class="nft-col-card nft-legendary" onclick="toast('🌙 Moon Queen — Minting soon!')">
+          <div class="nft-img-wrap">
+            <img src="/assets/nft/nft-5-moon-queen.png" alt="Moon Queen" class="nft-img"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+            <div class="nft-img-fb" style="display:none">🌙</div>
+            <div class="nft-img-gradient"></div>
+            <div class="nft-rarity-pill legendary">✦ LEGENDARY</div>
+            <div class="nft-token-badge">#003</div>
+          </div>
+          <div class="nft-col-info">
+            <div class="nft-col-name">MOON QUEEN</div>
+            <div class="nft-col-id">Genesis Collection · 1 of 1</div>
+            <div class="nft-traits-row">
+              <span class="nft-trait">🌙 Moon Crown</span>
+              <span class="nft-trait">💫 Galaxy Robe</span>
+              <span class="nft-trait">🌟 Mystic Eyes</span>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /nft-collection-grid -->
+
+      <!-- Features -->
+      <div class="nft-features">
+        <div class="nft-feat">
+          <span class="nft-feat-ico">🎨</span>
+          <div>
+            <div class="nft-feat-title">Unique Traits &amp; Accessories</div>
+            <div class="nft-feat-desc">Each NFT cat carries algorithmically assigned traits, outfits, and accessories — stored on-chain forever.</div>
+          </div>
+        </div>
+        <div class="nft-feat">
+          <span class="nft-feat-ico">💎</span>
+          <div>
+            <div class="nft-feat-title">Holder-Exclusive Rewards</div>
+            <div class="nft-feat-desc">NFT holders unlock exclusive in-game items, early feature access, and lifetime community privileges.</div>
+          </div>
+        </div>
+        <div class="nft-feat">
+          <span class="nft-feat-ico">🌊</span>
+          <div>
+            <div class="nft-feat-title">Seasonal Drops</div>
+            <div class="nft-feat-desc">Limited seasonal collections with time-locked traits and surprise collaboration releases.</div>
+          </div>
+        </div>
+        <div class="nft-feat">
+          <span class="nft-feat-ico">🏪</span>
+          <div>
+            <div class="nft-feat-title">Integrated Marketplace</div>
+            <div class="nft-feat-desc">Trade, sell, and collect cats through a native Web3 marketplace — seamlessly built into Pawverse.</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="nft-cta" onclick="toast('🔔 You\'ll be notified at launch!')">
+        🔔 &nbsp; NOTIFY ME AT LAUNCH
+      </button>
+      <div class="nft-disclaimer">
+        NO BLOCKCHAIN FUNCTIONALITY YET<br>
+        VISUAL PROTOTYPE ONLY · WEB3 INTEGRATION COMING SOON
+      </div>
+
+    </div><!-- /nft -->
+
+  </div><!-- /tab-content -->
+</div><!-- /app -->
+
+<script>
+/* ══════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════ */
+const S = {
+  coins: 50,
+  level: 1,
+  xp: 0,
+  xpMax: 100,
+  streak: 3,
+  dailyClaimed: false,
+  baseCat: '😺',
+  accEmoji: '🎀',
+  stats: { hunger: 75, happy: 80, energy: 90, clean: 65 },
+};
+
+const TASKS = [
+  // One-time
+  { id:'tw',   type:'ot', name:'Follow on X / Twitter',   reward:50, ico:'𝕏',  url:'https://x.com/CatsofParaiso',                            done:false },
+  { id:'ig',   type:'ot', name:'Follow on Instagram',     reward:50, ico:'📸', url:'https://www.instagram.com/catsofparaiso',                done:false },
+  { id:'tt',   type:'ot', name:'Follow on TikTok',        reward:30, ico:'🎵', url:'https://www.tiktok.com/@catsofparaiso',                  done:false },
+  { id:'th',   type:'ot', name:'Follow on Threads',       reward:30, ico:'🧵', url:'https://www.threads.com/@catsofparaiso',                 done:false },
+  { id:'fb',   type:'ot', name:'Like our Facebook Page',  reward:20, ico:'👍', url:'https://www.facebook.com/profile.php?id=61567442002845', done:false },
+  // Daily
+  { id:'share',type:'daily', name:'Share a Community Post', reward:15, ico:'🔁', url:'https://www.facebook.com/profile.php?id=61567442002845', done:false },
+  { id:'like', type:'daily', name:'Like a Post Today',      reward:10, ico:'❤️', url:'https://www.facebook.com/profile.php?id=61567442002845', done:false },
+];
+
+const INVENTORY = [
+  { id:1,  name:'Pixel Crown',    type:'accessory',  rarity:'rare',      emoji:'👑', equipped:false },
+  { id:2,  name:'Star Bow',       type:'accessory',  rarity:'common',    emoji:'🎀', equipped:true  },
+  { id:3,  name:'Tuna Can',       type:'food',       rarity:'common',    emoji:'🐟', qty:3          },
+  { id:4,  name:'Yarn Ball',      type:'toy',        rarity:'common',    emoji:'🧶', qty:2          },
+  { id:5,  name:'Catnip',         type:'food',       rarity:'rare',      emoji:'🌿', qty:1          },
+  { id:6,  name:'Mystery Box',    type:'special',    rarity:'epic',      emoji:'📦', qty:1          },
+  { id:7,  name:'Galaxy Collar',  type:'accessory',  rarity:'legendary', emoji:'✨', equipped:false },
+  { id:8,  name:'Cozy Bed',       type:'decoration', rarity:'rare',      emoji:'🛏️', qty:1          },
+  { id:9,  name:'Pixel Glasses',  type:'accessory',  rarity:'epic',      emoji:'🕶️', equipped:false },
+  { id:10, name:'Catnip Sushi',   type:'food',       rarity:'rare',      emoji:'🍱', qty:2          },
+  { id:11, name:'Neon Ribbon',    type:'accessory',  rarity:'common',    emoji:'🎗️', equipped:false },
+  { id:12, name:'Space Helmet',   type:'accessory',  rarity:'epic',      emoji:'🪖', equipped:false },
+];
+
+/* ══════════════════════════════════════════════
+   LOGIN
+══════════════════════════════════════════════ */
+function doLogin() {
+  const u = document.getElementById('u').value.trim();
+  const p = document.getElementById('p').value;
+  const err = document.getElementById('lerr');
+  if (u === 'catsofparaiso' && p === 'billionfuckingdollars') {
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('app').classList.add('visible');
+    initGame();
+  } else {
+    err.style.display = 'block';
+    setTimeout(() => err.style.display = 'none', 3500);
+  }
+}
+
+/* ══════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════ */
+function initGame() {
+  renderHUD();
+  renderStats();
+  renderTasks();
+  renderInv('all');
+  initPaws();
+  startDecay();
+}
+
+/* ══════════════════════════════════════════════
+   TABS
+══════════════════════════════════════════════ */
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ══════════════════════════════════════════════
+   HUD
+══════════════════════════════════════════════ */
+function renderHUD() {
+  document.getElementById('h-streak').textContent  = S.streak;
+  document.getElementById('h-lv').textContent      = S.level;
+  document.getElementById('h-coins').textContent   = S.coins;
+  document.getElementById('coins-big').textContent = S.coins;
+  document.getElementById('rw-streak').textContent = S.streak;
+
+  const pct = Math.min(100, (S.xp / S.xpMax) * 100);
+  document.getElementById('xp-fill').style.width = pct + '%';
+  document.getElementById('xp-lv').textContent   = S.level;
+  document.getElementById('xp-cur').textContent  = S.xp;
+  document.getElementById('xp-max').textContent  = S.xpMax;
+}
+
+/* ══════════════════════════════════════════════
+   STATS
+══════════════════════════════════════════════ */
+function statColor(v) {
+  if (v > 60) return 'linear-gradient(90deg,#50C878,#3DB860)';
+  if (v > 30) return 'linear-gradient(90deg,#FFD700,#FFA500)';
+  return 'linear-gradient(90deg,#FF6B6B,#FF4040)';
+}
+
+function renderStats() {
+  const keys = ['hunger','happy','energy','clean'];
+  keys.forEach(k => {
+    const v = S.stats[k];
+    const fill = document.getElementById('sf-' + k);
+    const val  = document.getElementById('sv-' + k);
+    if (fill) { fill.style.width = v + '%'; fill.style.background = statColor(v); }
+    if (val)  val.textContent = Math.round(v);
+  });
+  updateMood();
+}
+
+function updateMood() {
+  const { hunger, happy, energy, clean } = S.stats;
+  const avg = (hunger + happy + energy + clean) / 4;
+  const min = Math.min(hunger, happy, energy, clean);
+
+  const emoEl  = document.getElementById('cat-emoji');
+  const moodEl = document.getElementById('cat-mood');
+  if (!emoEl || emoEl.dataset.lock) return;
+
+  let emoji = S.baseCat;
+  let mood  = '😊 HAPPY';
+
+  if (min < 15)       { emoji = '😿'; mood = '💔 STRUGGLING'; }
+  else if (hunger < 25) { emoji = '🙀'; mood = '🍖 SO HUNGRY'; }
+  else if (energy < 20) { emoji = '😴'; mood = '💤 EXHAUSTED'; }
+  else if (avg > 82)    { emoji = S.baseCat === '😺' ? '😸' : S.baseCat; mood = '✨ THRIVING'; }
+  else if (avg < 40)    { emoji = '😔'; mood = '😔 NOT GREAT'; }
+
+  emoEl.textContent  = emoji;
+  moodEl.textContent = mood;
+}
+
+function startDecay() {
+  setInterval(() => {
+    const s = S.stats;
+    s.hunger = Math.max(0, s.hunger - (0.5 + Math.random() * 1.5));
+    s.happy  = Math.max(0, s.happy  - (0.3 + Math.random() * 0.9));
+    s.energy = Math.max(0, s.energy - (0.4 + Math.random() * 1.2));
+    s.clean  = Math.max(0, s.clean  - (0.2 + Math.random() * 0.7));
+    renderStats();
+  }, 9000);
+}
+
+/* ══════════════════════════════════════════════
+   ACTIONS
+══════════════════════════════════════════════ */
+const ACTIONS = {
+  feed:  { stat:'hunger', amt:28, xp:10, msg:'Nom nom! Mochi loves it! 🍣',  pars:['🍣','🍖','💛'],     anim:'a-feed',  ovr:'😋', ovrMs:2200 },
+  play:  { stat:'happy',  amt:22, xp:15, msg:'Yay! Playtime! 🎉',           pars:['⭐','🎉','💫'],      anim:'a-play',  ovr:'😸', ovrMs:2000 },
+  sleep: { stat:'energy', amt:35, xp:8,  msg:'Sweet dreams, Mochi... 💤',   pars:['💤','💤'],           anim:'a-sleep', ovr:'😴', ovrMs:3500 },
+  clean: { stat:'clean',  amt:30, xp:8,  msg:'Squeaky clean! ✨',           pars:['✨','💧','⭐'],      anim:'a-clean', ovr:'😺', ovrMs:2000 },
+  pet:   { stat:'happy',  amt:14, xp:5,  msg:'Purr purr... 💕',             pars:['💕','💖','🩷'],      anim:'a-pet',   ovr:'😻', ovrMs:2200 },
+};
+const CD = { feed:8000, play:6000, sleep:12000, clean:10000, pet:3000 };
+
+function doAction(act) {
+  const btn = document.getElementById('ab-' + act);
+  if (btn.classList.contains('cooldown')) return;
+
+  const cfg = ACTIONS[act];
+  S.stats[cfg.stat] = Math.min(100, S.stats[cfg.stat] + cfg.amt);
+  renderStats();
+  addXP(cfg.xp);
+
+  // Animate cat wrap
+  const wrap = document.getElementById('cat-wrap');
+  wrap.className = 'cat-wrap ' + cfg.anim;
+  setTimeout(() => wrap.className = 'cat-wrap', act === 'sleep' ? 4000 : 2200);
+
+  // Emoji override
+  const emo = document.getElementById('cat-emoji');
+  emo.textContent = cfg.ovr;
+  emo.dataset.lock = '1';
+  setTimeout(() => { delete emo.dataset.lock; updateMood(); }, cfg.ovrMs);
+
+  // Particles
+  spawnPars(cfg.pars);
+  toast(cfg.msg);
+  startCD(act);
+}
+
+function startCD(act) {
+  const btn = document.getElementById('ab-' + act);
+  const bar = document.getElementById('cd-' + act);
+  const ms  = CD[act];
+  btn.classList.add('cooldown');
+  bar.style.transition = 'none';
+  bar.style.width = '100%';
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    bar.style.transition = `width ${ms}ms linear`;
+    bar.style.width = '0%';
+  }));
+  setTimeout(() => {
+    btn.classList.remove('cooldown');
+    bar.style.transition = 'none';
+    bar.style.width = '0%';
+  }, ms);
+}
+
+/* ══════════════════════════════════════════════
+   XP + LEVEL
+══════════════════════════════════════════════ */
+function addXP(n) {
+  S.xp += n;
+  if (S.xp >= S.xpMax) {
+    S.xp -= S.xpMax;
+    S.level++;
+    S.xpMax = Math.round(S.xpMax * 1.55);
+    showLU();
+  }
+  renderHUD();
+}
+
+function showLU() {
+  document.getElementById('lu-sub').textContent = `You reached Level ${S.level}!`;
+  document.getElementById('lu-modal').classList.add('show');
+}
+function closeLU() {
+  document.getElementById('lu-modal').classList.remove('show');
+}
+
+/* ══════════════════════════════════════════════
+   CAT CUSTOMISATION
+══════════════════════════════════════════════ */
+function pickCat(el, emoji) {
+  document.querySelectorAll('.cat-opt').forEach(o => o.classList.remove('sel'));
+  el.classList.add('sel');
+  S.baseCat = emoji;
+  updateMood();
+  toast('✨ Looking fab, Mochi!');
+}
+
+/* ══════════════════════════════════════════════
+   PARTICLES
+══════════════════════════════════════════════ */
+function spawnPars(emojis) {
+  const box = document.getElementById('cat-particles');
+  emojis.forEach((e, i) => {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.textContent = e;
+    p.style.left   = (25 + Math.random() * 50) + '%';
+    p.style.bottom = '70px';
+    p.style.animationDelay = (i * 0.16) + 's';
+    box.appendChild(p);
+    setTimeout(() => p.remove(), 2000);
+  });
+}
+
+/* ══════════════════════════════════════════════
+   TASKS
+══════════════════════════════════════════════ */
+function renderTasks() {
+  renderTaskGroup('tasks-ot',    TASKS.filter(t => t.type === 'ot'));
+  renderTaskGroup('tasks-daily', TASKS.filter(t => t.type === 'daily'));
+}
+
+function renderTaskGroup(containerId, tasks) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = tasks.map(t => `
+    <div class="task-card${t.done && t.type==='ot' ? ' done' : ''}" id="tc-${t.id}">
+      <div class="task-ico">${t.ico}</div>
+      <div class="task-info">
+        <div class="task-name">${t.name}</div>
+        <div class="task-rwd">+${t.reward} 🪙 <span class="task-type">· ${t.type==='ot' ? 'One-time' : 'Daily'}</span></div>
+      </div>
+      ${t.done && t.type==='ot'
+        ? `<div class="task-done-badge">✓ DONE</div>`
+        : `<button class="task-go" onclick="completeTask('${t.id}')">GO →</button>`}
+    </div>`).join('');
+}
+
+function completeTask(id) {
+  const task = TASKS.find(t => t.id === id);
+  if (!task || (task.done && task.type === 'ot')) return;
+  if (task.url) window.open(task.url, '_blank');
+  setTimeout(() => {
+    task.done = true;
+    S.coins  += task.reward;
+    addXP(task.reward * 0.5);
+    renderHUD();
+    renderTasks();
+    toast(`+${task.reward} 🪙 Earned! Keep it up!`);
+    spawnPars(['🪙','⭐','🎉']);
+  }, task.url ? 1800 : 400);
+}
+
+function claimDaily() {
+  if (S.dailyClaimed) { toast('Already claimed today! Come back tomorrow 🌙'); return; }
+  S.dailyClaimed = true;
+  S.coins  += 15;
+  S.streak++;
+  addXP(25);
+  renderHUD();
+  const btn = document.getElementById('daily-btn');
+  btn.disabled = true; btn.textContent = '✓ CLAIMED';
+  toast(`🔥 Day ${S.streak} streak! +15 🪙`);
+  spawnPars(['🪙','🔥','⭐','🎉']);
+}
+
+/* ══════════════════════════════════════════════
+   INVENTORY
+══════════════════════════════════════════════ */
+const RARITY_COLORS = { common:'#8B8B8B', rare:'#4A90D9', epic:'#9B59B6', legendary:'#FFD700' };
+let invFilter = 'all';
+
+function filterInv(filter, btn) {
+  invFilter = filter;
+  document.querySelectorAll('.fil-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderInv(filter);
+}
+
+function renderInv(filter) {
+  const items = filter === 'all' ? INVENTORY : INVENTORY.filter(i => i.type === filter);
+  const grid  = document.getElementById('inv-grid');
+
+  if (items.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px 0;font-family:var(--pixel);font-size:7px;color:var(--t25)">No items yet!</div>`;
+    return;
+  }
+
+  grid.innerHTML = items.map(item => `
+    <div class="inv-item" onclick="useItem(${item.id})"
+         style="border-top-color:${RARITY_COLORS[item.rarity]}">
+      <div class="rarity-tag r-${item.rarity}">${item.rarity.toUpperCase()}</div>
+      <div class="inv-emoji">${item.emoji}</div>
+      <div class="inv-name">${item.name}</div>
+      ${item.qty !== undefined ? `<div class="inv-qty">×${item.qty}</div>` : ''}
+      ${item.equipped ? '<div class="inv-equipped">EQUIPPED</div>' : ''}
+    </div>`).join('');
+}
+
+function useItem(id) {
+  const item = INVENTORY.find(i => i.id === id);
+  if (!item) return;
+
+  if (item.type === 'accessory') {
+    INVENTORY.filter(i => i.type === 'accessory').forEach(i => i.equipped = false);
+    item.equipped = true;
+    S.accEmoji = item.emoji;
+    document.getElementById('cat-acc').textContent = item.emoji;
+    toast(`${item.emoji} ${item.name} equipped!`);
+    renderInv(invFilter);
+
+  } else if (item.type === 'food' && item.qty > 0) {
+    item.qty--;
+    S.stats.hunger = Math.min(100, S.stats.hunger + 22);
+    renderStats(); renderHUD();
+    toast(`Mochi ate the ${item.name}! 😋`);
+    spawnPars(['😋','✨','💛']);
+    if (item.qty === 0) INVENTORY.splice(INVENTORY.indexOf(item), 1);
+    renderInv(invFilter);
+
+  } else if (item.type === 'toy' && item.qty > 0) {
+    S.stats.happy = Math.min(100, S.stats.happy + 18);
+    renderStats();
+    toast(`Mochi loves the ${item.name}! 🎉`);
+    spawnPars(['🎉','⭐','💕']);
+
+  } else if (item.type === 'special') {
+    toast('📦 Opening box...');
+    setTimeout(() => toast('✨ Got a Galaxy Collar fragment!'), 1600);
+
+  } else {
+    toast(`${item.emoji} ${item.name}`);
+  }
+}
+
+/* ══════════════════════════════════════════════
+   FLOATING PAWS
+══════════════════════════════════════════════ */
+function initPaws() {
+  const layer = document.getElementById('paw-layer');
+  const cfgs  = [
+    {left:'5%',  delay:0,   dur:9   },
+    {left:'19%', delay:2.2, dur:12  },
+    {left:'36%', delay:0.9, dur:8   },
+    {left:'55%', delay:3.1, dur:10.5},
+    {left:'72%', delay:1.6, dur:9.5 },
+    {left:'89%', delay:4,   dur:11  },
+  ];
+  cfgs.forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'fpaw';
+    el.style.cssText = `left:${c.left};animation-duration:${c.dur}s;animation-delay:${c.delay}s;font-size:${13+Math.random()*7}px`;
+    el.innerHTML = `<img src="/assets/Paw.png" alt="🐾" onerror="this.outerHTML='🐾'" style="width:16px;height:16px;object-fit:contain;opacity:0.14">`;
+    layer.appendChild(el);
+  });
+}
+
+/* ══════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════ */
+let toastT;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.classList.remove('show'), 2600);
+}
+</script>
+
+</body>
+</html>

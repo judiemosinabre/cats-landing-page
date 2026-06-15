@@ -11,6 +11,7 @@ interface Post {
   url: string;
   likes?: number;
   comments?: number;
+  shares?: number;
 }
 
 // ── ASCII texture ─────────────────────────────────────────────────────────────
@@ -30,6 +31,7 @@ const FALLBACK_POSTS: Post[] = [
     url: 'https://www.facebook.com/profile.php?id=61567442002845',
     likes: 1200,
     comments: 183,
+    shares: 47,
   },
   {
     id: 2,
@@ -38,6 +40,7 @@ const FALLBACK_POSTS: Post[] = [
     url: 'https://www.facebook.com/profile.php?id=61567442002845',
     likes: 980,
     comments: 74,
+    shares: 21,
   },
   {
     id: 3,
@@ -46,6 +49,7 @@ const FALLBACK_POSTS: Post[] = [
     url: 'https://www.facebook.com/profile.php?id=61567442002845',
     likes: 2100,
     comments: 312,
+    shares: 189,
   },
 ];
 
@@ -91,7 +95,8 @@ function PostCard({ post, index }: { post: Post; index: number }) {
 
   const likesLabel    = post.likes    != null ? `${post.likes.toLocaleString()} likes`       : null;
   const commentsLabel = post.comments != null ? `${post.comments.toLocaleString()} comments` : null;
-  const meta          = [likesLabel, commentsLabel].filter(Boolean).join(' · ');
+  const sharesLabel   = post.shares   != null && post.shares > 0 ? `${post.shares.toLocaleString()} shares` : null;
+  const meta          = [likesLabel, commentsLabel, sharesLabel].filter(Boolean).join(' · ');
 
   return (
     <motion.article
