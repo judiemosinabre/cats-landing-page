@@ -30,18 +30,19 @@ const fadeUp = (delay = 0) => ({
 
 // ── Animated counter stat card ────────────────────────────────────────────────
 function StatCard({
-  rawNumber, suffix, label, icon, displayOverride,
+  rawNumber, suffix, label, icon, displayOverride, startFrom = 0,
 }: {
   rawNumber?: number;
   suffix?: string;
   label: string;
   icon: React.ReactNode;
   displayOverride?: string;
+  startFrom?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true });
-  const count = useMotionValue(0);
-  const [display, setDisplay] = useState('0');
+  const count = useMotionValue(startFrom);
+  const [display, setDisplay] = useState(String(startFrom));
 
   useEffect(() => {
     if (displayOverride || !inView || rawNumber === undefined) return;
@@ -207,7 +208,7 @@ export default function Hero({ onOpenWhitelist }: { onOpenWhitelist: () => void 
 
         {/* Stats — animated counters */}
         <motion.div {...fadeUp(1.05)} className="flex gap-4 mb-16 flex-wrap">
-          <StatCard rawNumber={10} suffix="K+" label="Community Supporters" icon={<Globe size={18} />} />
+          <StatCard rawNumber={100} suffix="+" startFrom={80} label="Community Supporters" icon={<Globe size={18} />} />
           <StatCard displayOverride="24/7" label="Crypto & Web3 Updates" icon={<Clock size={18} />} />
         </motion.div>
 

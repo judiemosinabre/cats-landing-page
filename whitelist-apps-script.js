@@ -36,7 +36,7 @@ function doPost(e) {
       sheet.getRange(1, 1, 1, 3).setFontWeight('bold');
     }
 
-    sheet.appendRow([new Date().toISOString(), name, email]);
+    sheet.appendRow([getPHTTimestamp(), name, email]);
 
     return ContentService
       .createTextOutput(JSON.stringify({ success: true }))
@@ -47,6 +47,23 @@ function doPost(e) {
       .createTextOutput(JSON.stringify({ success: false, error: err.message }))
       .setMimeType(ContentService.MimeType.JSON);
   }
+}
+
+// Returns timestamp in PHT (GMT+8) formatted as: 2026-06-15 | 04:39:18 PM
+function getPHTTimestamp() {
+  const now = new Date();
+  const pht = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+
+  const date = pht.toISOString().slice(0, 10); // YYYY-MM-DD
+
+  let hours = pht.getUTCHours();
+  const minutes = String(pht.getUTCMinutes()).padStart(2, '0');
+  const seconds = String(pht.getUTCSeconds()).padStart(2, '0');
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12 || 12;
+  const time = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
+
+  return `${date} | ${time}`;
 }
 
 // Optional: test by visiting the web app URL directly in your browser
